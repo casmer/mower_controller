@@ -14,13 +14,13 @@ void loop () {
   sbus_receiver.tick();
 
   delay(20);
-  if (sbus_receiver.no_data())
+  if (sbus_receiver.no_data() || sbus_receiver.get_failsafe())
   {
     static int print_counter=0;
     print_counter++;
     if (print_counter>=200)
     {
-      Serial.write(".");
+      Serial.write(sbus_receiver.get_failsafe() ? "." : "-" );
       print_counter=0;
     }
 
