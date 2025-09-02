@@ -3,15 +3,16 @@
 
 
 #include "mower/motor_driver.hpp"
+namespace cotsbotics
+{
+    MotorDriver::MotorDriver(const uint8_t driveOutputPin, const uint8_t driveInputPin,
+                const uint8_t zeroSwitchOutputPin, const uint8_t zeroSwitchInputPin) :
+                _driveOutputPin(driveOutputPin), _driveInputPin(driveInputPin),
+                _zeroSwitchOutputPin(zeroSwitchOutputPin), _zeroSwitchInputPin(zeroSwitchInputPin)
+                {
 
-    MotorDriver(const uint8_t driveOutputPin, const uint8_t driveInputPin,
-                const uint8_t zeroSwitchOutputPin, const uint8_t zeroSwitchInputPin);
+                }
 
-
-    uint8_t _driveOutputPin;
-    uint8_t _driveInputPin;
-    uint8_t _zeroSwitchOutputPin;
-    uint8_t _zeroSwitchInputPin;
     
-};
+}; // namespace cotsbotics
 
