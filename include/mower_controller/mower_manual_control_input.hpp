@@ -13,7 +13,6 @@ namespace cotsbotics::mower_controller
     public:
         /// @brief Constructor
         explicit MowerManualControlInputManager(
-            MowerControlPinAssignments::Inputs pins,
             IDigitalPort &left_motor_zero_switch,
             IAnalogPort &left_motor_throtle,
             IDigitalPort &right_motor_zero_switch,
@@ -27,7 +26,7 @@ namespace cotsbotics::mower_controller
 
         void tick();
 
-        MowerControlState const getState() const;
+        MowerControlState const &getState() const;
 
     private:
         MowerControlState m_state;

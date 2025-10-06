@@ -5,7 +5,6 @@
 #ifndef SBUS_SBUS_RECEIVER_HPP
 #define SBUS_SBUS_RECEIVER_HPP
 
-#include <Arduino.h>
 #include "sbus.h"
 
 namespace cotsbotics

@@ -7,7 +7,6 @@ namespace cotsbotics
     {
        
              MowerManualControlInputManager::MowerManualControlInputManager(
-                MowerControlPinAssignments::Inputs pins,
                 IDigitalPort &left_motor_zero_switch,
                 IAnalogPort &left_motor_throtle,
                 IDigitalPort &right_motor_zero_switch,
@@ -44,18 +43,18 @@ namespace cotsbotics
                 m_blades_enabled.tick();
 
                 m_state.left_motor.throtle_position = m_left_motor_throtle.read();
-                m_state.left_motor.zero_switch = m_left_motor_zero_switch.getValue();
+                m_state.left_motor.zero_switch = m_left_motor_zero_switch.read();
                 m_state.right_motor.throtle_position = m_right_motor_throtle.read();
-                m_state.right_motor.zero_switch = m_right_motor_zero_switch.getValue();
-                m_state.seat_switch_drive = m_seat_switch_drive_controls.getValue();
-                m_state.seat_switch_blade = m_seat_switch_blade_controls.getValue();
-                m_state.low_speed_drive = m_low_speed_drive.getValue();
-                m_state.brake_engaged = m_brake_engaged.getValue();
-                m_state.low_speed_cut = m_low_speed_cut.getValue();
-                m_state.blades_enabled = m_blades_enabled.getValue();
+                m_state.right_motor.zero_switch = m_right_motor_zero_switch.read();
+                m_state.seat_switch_drive = m_seat_switch_drive_controls.read();
+                m_state.seat_switch_blade = m_seat_switch_blade_controls.read();
+                m_state.low_speed_drive = m_low_speed_drive.read();
+                m_state.brake_engaged = m_brake_engaged.read();
+                m_state.low_speed_cut = m_low_speed_cut.read();
+                m_state.blades_enabled = m_blades_enabled.read();
             };
 
-            MowerControlState const MowerManualControlInputManager::getState() const
+            MowerControlState const &MowerManualControlInputManager::getState() const
             {
                 return m_state;
             };
