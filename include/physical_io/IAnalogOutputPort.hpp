@@ -1,14 +1,11 @@
 #pragma once
 namespace cotsbotics::mower_controller
 {
-    class IAnalogPort
+    class IAnalogOutputPort
     {
     public:
         /// @brief Virtual destructor
-        virtual ~IAnalogPort() = default;
-
-        /// @brief Reads the current analog value from the port.
-        virtual float read() const = 0;
+        virtual ~IAnalogOutputPort() = default;
 
         /// @brief Optionally, set the port to a specific value (if supported).
         virtual void write(float value) = 0;

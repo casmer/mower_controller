@@ -1,21 +1,21 @@
 #include <gmock/gmock.h>
-#include <mock/MockAnalogPort.hpp>
-#include <mock/MockDigitalPort.hpp>
+#include <mock/MockAnalogInputPort.hpp>
+#include <mock/MockDigitalInputPort.hpp>
 #include "mower_controller/mower_manual_control_input.hpp"
 
 using namespace cotsbotics::mower_controller;
 TEST(mower_manual_control_input, tick)
 {
-MockDigitalPort left_motor_zero_switch;
-MockAnalogPort left_motor_throtle;
-MockDigitalPort right_motor_zero_switch;
-MockAnalogPort right_motor_throtle;
-MockDigitalPort seat_switch_drive_controls;
-MockDigitalPort seat_switch_blade_controls;
-MockDigitalPort low_speed_drive;
-MockDigitalPort brake_engaged;
-MockDigitalPort low_speed_cut;
-MockDigitalPort blades_enabled;
+MockDigitalInputPort left_motor_zero_switch;
+MockAnalogInputPort left_motor_throtle;
+MockDigitalInputPort right_motor_zero_switch;
+MockAnalogInputPort right_motor_throtle;
+MockDigitalInputPort seat_switch_drive_controls;
+MockDigitalInputPort seat_switch_blade_controls;
+MockDigitalInputPort low_speed_drive;
+MockDigitalInputPort brake_engaged;
+MockDigitalInputPort low_speed_cut;
+MockDigitalInputPort blades_enabled;
 
 MowerControlState expected_state;
 expected_state.left_motor.throtle_position = 0.5f;
@@ -40,17 +40,6 @@ MowerManualControlInputManager manager(
     brake_engaged,
     low_speed_cut,
     blades_enabled);
-
-EXPECT_CALL(left_motor_zero_switch, tick()).Times(1);
-EXPECT_CALL(left_motor_throtle, tick()).Times(1);
-EXPECT_CALL(right_motor_zero_switch, tick()).Times(1);
-EXPECT_CALL(right_motor_throtle, tick()).Times(1);
-EXPECT_CALL(seat_switch_drive_controls, tick()).Times(1);
-EXPECT_CALL(seat_switch_blade_controls, tick()).Times(1);
-EXPECT_CALL(low_speed_drive, tick()).Times(1);
-EXPECT_CALL(brake_engaged, tick()).Times(1);
-EXPECT_CALL(low_speed_cut, tick()).Times(1);
-EXPECT_CALL(blades_enabled, tick()).Times(1);
 
 EXPECT_CALL(left_motor_zero_switch, read()).Times(1).WillOnce(testing::Return(expected_state.left_motor.zero_switch));
 EXPECT_CALL(left_motor_throtle, read()).Times(1).WillOnce(testing::Return(expected_state.left_motor.throtle_position));

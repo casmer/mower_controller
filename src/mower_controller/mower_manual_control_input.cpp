@@ -7,16 +7,16 @@ namespace cotsbotics
     {
        
              MowerManualControlInputManager::MowerManualControlInputManager(
-                IDigitalPort &left_motor_zero_switch,
-                IAnalogPort &left_motor_throtle,
-                IDigitalPort &right_motor_zero_switch,
-                IAnalogPort &right_motor_throtle,
-                IDigitalPort &seat_switch_drive_controls,
-                IDigitalPort &seat_switch_blade_controls,
-                IDigitalPort &low_speed_drive,
-                IDigitalPort &brake_engaged,
-                IDigitalPort &low_speed_cut,
-                IDigitalPort &blades_enabled) : m_left_motor_zero_switch(left_motor_zero_switch),
+                IDigitalInputPort &left_motor_zero_switch,
+                IAnalogInputPort &left_motor_throtle,
+                IDigitalInputPort &right_motor_zero_switch,
+                IAnalogInputPort &right_motor_throtle,
+                IDigitalInputPort &seat_switch_drive_controls,
+                IDigitalInputPort &seat_switch_blade_controls,
+                IDigitalInputPort &low_speed_drive,
+                IDigitalInputPort &brake_engaged,
+                IDigitalInputPort &low_speed_cut,
+                IDigitalInputPort &blades_enabled) : m_left_motor_zero_switch(left_motor_zero_switch),
                                                 m_left_motor_throtle(left_motor_throtle),
                                                 m_right_motor_zero_switch(right_motor_zero_switch),
                                                 m_right_motor_throtle(right_motor_throtle),
@@ -31,17 +31,6 @@ namespace cotsbotics
 
             void MowerManualControlInputManager::tick()
             {
-                m_left_motor_zero_switch.tick();
-                m_left_motor_throtle.tick();
-                m_right_motor_zero_switch.tick();
-                m_right_motor_throtle.tick();
-                m_seat_switch_drive_controls.tick();
-                m_seat_switch_blade_controls.tick();
-                m_low_speed_drive.tick();
-                m_brake_engaged.tick();
-                m_low_speed_cut.tick();
-                m_blades_enabled.tick();
-
                 m_state.left_motor.throtle_position = m_left_motor_throtle.read();
                 m_state.left_motor.zero_switch = m_left_motor_zero_switch.read();
                 m_state.right_motor.throtle_position = m_right_motor_throtle.read();

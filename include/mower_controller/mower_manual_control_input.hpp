@@ -1,7 +1,7 @@
 #pragma once
 
-#include "physical_io/IDigitalPort.hpp"
-#include "physical_io/IAnalogPort.hpp"
+#include "physical_io/IDigitalInputPort.hpp"
+#include "physical_io/IAnalogInputPort.hpp"
 #include "mower_controller/mower_control_pin_assignments.hpp"
 #include "mower_controller/mower_control_state.hpp"
 
@@ -13,16 +13,16 @@ namespace cotsbotics::mower_controller
     public:
         /// @brief Constructor
         explicit MowerManualControlInputManager(
-            IDigitalPort &left_motor_zero_switch,
-            IAnalogPort &left_motor_throtle,
-            IDigitalPort &right_motor_zero_switch,
-            IAnalogPort &right_motor_throtle,
-            IDigitalPort &seat_switch_drive_controls,
-            IDigitalPort &seat_switch_blade_controls,
-            IDigitalPort &low_speed_drive,
-            IDigitalPort &brake_engaged,
-            IDigitalPort &low_speed_cut,
-            IDigitalPort &blades_enabled);
+            IDigitalInputPort &left_motor_zero_switch,
+            IAnalogInputPort &left_motor_throtle,
+            IDigitalInputPort &right_motor_zero_switch,
+            IAnalogInputPort &right_motor_throtle,
+            IDigitalInputPort &seat_switch_drive_controls,
+            IDigitalInputPort &seat_switch_blade_controls,
+            IDigitalInputPort &low_speed_drive,
+            IDigitalInputPort &brake_engaged,
+            IDigitalInputPort &low_speed_cut,
+            IDigitalInputPort &blades_enabled);
 
         void tick();
 
@@ -32,16 +32,16 @@ namespace cotsbotics::mower_controller
         MowerControlState m_state;
         /// @brief Pin assignments for the mower control inputs
         /// @{
-        IDigitalPort &m_left_motor_zero_switch;
-        IAnalogPort &m_left_motor_throtle;
-        IDigitalPort &m_right_motor_zero_switch;
-        IAnalogPort &m_right_motor_throtle;
-        IDigitalPort &m_seat_switch_drive_controls;
-        IDigitalPort &m_seat_switch_blade_controls;
-        IDigitalPort &m_low_speed_drive;
-        IDigitalPort &m_brake_engaged;
-        IDigitalPort &m_low_speed_cut;
-        IDigitalPort &m_blades_enabled;
+        IDigitalInputPort &m_left_motor_zero_switch;
+        IAnalogInputPort &m_left_motor_throtle;
+        IDigitalInputPort &m_right_motor_zero_switch;
+        IAnalogInputPort &m_right_motor_throtle;
+        IDigitalInputPort &m_seat_switch_drive_controls;
+        IDigitalInputPort &m_seat_switch_blade_controls;
+        IDigitalInputPort &m_low_speed_drive;
+        IDigitalInputPort &m_brake_engaged;
+        IDigitalInputPort &m_low_speed_cut;
+        IDigitalInputPort &m_blades_enabled;
         /// @}
     };
 
