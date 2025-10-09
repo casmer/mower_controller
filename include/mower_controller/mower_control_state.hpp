@@ -5,9 +5,9 @@ namespace cotsbotics::mower_controller
 
     struct MowerDriveMotorState
     {
-        float throtle_position{0.0f};
+        int throttle_position{0};
         bool zero_switch{false};
-        float zero_switch_position{0.0f};
+        int zero_switch_position{-1};
     };
 
     struct MowerControlState

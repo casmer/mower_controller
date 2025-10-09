@@ -9,7 +9,8 @@ namespace cotsbotics::mower_controller
 
 class MockAnalogInputPort : public IAnalogInputPort {
 public:
-    MOCK_METHOD(float, read,(), (const));
+    MOCK_METHOD(int, read,(), (const));
+    MOCK_METHOD(void, setup,(), ());
 };
 
 }; // cotsbotics::mower_controller

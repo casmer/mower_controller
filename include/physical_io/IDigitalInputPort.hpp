@@ -9,4 +9,6 @@ public:
     /// @brief Get the current digital input value (true = high, false = low)
     virtual bool read() const = 0;
 
+    /// @brief setup the port
+    virtual void setup() = 0;
 };

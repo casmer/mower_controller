@@ -8,18 +8,18 @@ namespace cotsbotics
        
              MowerManualControlInputManager::MowerManualControlInputManager(
                 IDigitalInputPort &left_motor_zero_switch,
-                IAnalogInputPort &left_motor_throtle,
+                IAnalogInputPort &left_motor_throttle,
                 IDigitalInputPort &right_motor_zero_switch,
-                IAnalogInputPort &right_motor_throtle,
+                IAnalogInputPort &right_motor_throttle,
                 IDigitalInputPort &seat_switch_drive_controls,
                 IDigitalInputPort &seat_switch_blade_controls,
                 IDigitalInputPort &low_speed_drive,
                 IDigitalInputPort &brake_engaged,
                 IDigitalInputPort &low_speed_cut,
                 IDigitalInputPort &blades_enabled) : m_left_motor_zero_switch(left_motor_zero_switch),
-                                                m_left_motor_throtle(left_motor_throtle),
+                                                m_left_motor_throttle(left_motor_throttle),
                                                 m_right_motor_zero_switch(right_motor_zero_switch),
-                                                m_right_motor_throtle(right_motor_throtle),
+                                                m_right_motor_throttle(right_motor_throttle),
                                                 m_seat_switch_drive_controls(seat_switch_drive_controls),
                                                 m_seat_switch_blade_controls(seat_switch_blade_controls),
                                                 m_low_speed_drive(low_speed_drive),
@@ -29,11 +29,26 @@ namespace cotsbotics
             {
             };
 
+            void MowerManualControlInputManager::setup()
+            {
+
+                m_left_motor_zero_switch.setup();
+                m_left_motor_throttle.setup();
+                m_right_motor_zero_switch.setup();
+                m_right_motor_throttle.setup();
+                m_seat_switch_drive_controls.setup();
+                m_seat_switch_blade_controls.setup();
+                m_low_speed_drive.setup();
+                m_brake_engaged.setup();
+                m_low_speed_cut.setup();
+                m_blades_enabled.setup();
+            };
+
             void MowerManualControlInputManager::tick()
             {
-                m_state.left_motor.throtle_position = m_left_motor_throtle.read();
+                m_state.left_motor.throttle_position = m_left_motor_throttle.read();
                 m_state.left_motor.zero_switch = m_left_motor_zero_switch.read();
-                m_state.right_motor.throtle_position = m_right_motor_throtle.read();
+                m_state.right_motor.throttle_position = m_right_motor_throttle.read();
                 m_state.right_motor.zero_switch = m_right_motor_zero_switch.read();
                 m_state.seat_switch_drive = m_seat_switch_drive_controls.read();
                 m_state.seat_switch_blade = m_seat_switch_blade_controls.read();
