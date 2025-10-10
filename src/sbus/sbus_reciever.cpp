@@ -36,7 +36,7 @@ void SbusReceiver::Begin()
                 if (data_changed)
                 {
                     /* Display the received data */
-                    Serial.println("->");
+                    Serial.print("sbsus:");
                     for (int8_t i = 0; i < data.NUM_CH; i++) {
                         Serial.print(data.ch[i]);
                         Serial.print("\t");
@@ -44,7 +44,9 @@ void SbusReceiver::Begin()
                     /* Display lost frames and failsafe data */                   
                     Serial.print(data.lost_frame?"LF":"--");
                     Serial.print("\t");
-                    Serial.println(data.failsafe?"FS":"--");
+                    Serial.print(data.failsafe?"FS":"--");
+                    Serial.println(":sb");
+                    Serial.flush();
                 }
                 m_no_data_received=false;
             }
