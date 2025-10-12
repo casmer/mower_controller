@@ -33,7 +33,7 @@ void SbusReceiver::Begin()
                 }
                 
 
-                if (data_changed)
+                if (data_changed || printDelay.justFinished())
                 {
                     /* Display the received data */
                     Serial.print("sbsus:");
@@ -47,6 +47,7 @@ void SbusReceiver::Begin()
                     Serial.print(data.failsafe?"FS":"--");
                     Serial.println(":sb");
                     Serial.flush();
+                    printDelay.start(PRINT_DELAY_MS);
                 }
                 m_no_data_received=false;
             }

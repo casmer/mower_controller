@@ -6,6 +6,7 @@
 #define SBUS_SBUS_RECEIVER_HPP
 
 #include "sbus.h"
+#include "millisDelay.h"
 
 namespace cotsbotics
 {
@@ -37,6 +38,10 @@ namespace cotsbotics
         bfs::SbusRx sbus_rx{&Serial2, true};
         /* SBUS data */
         bfs::SbusData data;
+        // output current state data
+        millisDelay printDelay;
+
+        static constexpr unsigned long PRINT_DELAY_MS = 40;
     };
 }; // cotsbotics
 

@@ -42,7 +42,7 @@ class GUI:
         self.isStarted = False
         self.serialPortName = None
         self.serialPortBaud = 115200
-        self.sbus_partial_line = b''
+        self.partial_line = b''
         self.serialPortManager = SerialPortManager(self.serialPortBaud)
         self.get_available_serial_ports()
 
@@ -154,9 +154,9 @@ class GUI:
 
         spacing = 10
         padding = 10
-        widget_width = 200
+        widget_width = 400
         window_width = widget_width*2 + 2 * padding
-        window_height = 500
+        window_height = 600
 
         # Size of application window
         self.window.geometry("{}x{}".format(window_width, window_height))
@@ -296,10 +296,9 @@ class GUI:
         channel_values = line[6:].strip().split(b'\t')
         for i in range(min(16, len(channel_values))):
             try:
-                print(channel_values[i])
                 self.radio_channel_values[i].set(int(channel_values[i]))
             except ValueError:
-                print("ValueError")
+                print("ValueError on channel", i, "with value", channel_values[i])
                 self.radio_channel_values[i].set(-1)
                 
     def recursive_update_textbox(self):
@@ -308,24 +307,21 @@ class GUI:
         
         if len(serialPortBuffer) > 0:
             lines = serialPortBuffer.split(b'\n')
-            for line in lines[:-1]:
-                print(line)
-                if len(self.sbus_partial_line) > 0:
-                    if line.endswith(b':sb\r'):
-                        line = self.sbus_partial_line + line
-                        self.sbus_partial_line = b''
-                    else:
-                        self.sbus_partial_line += line
-                        continue
-                if line.startswith(b'sbsus:'):
-                    if line.endswith(b':sb\r'):
-                        print("yopu")
-                        self.process_incoming_sbus_line(line)
-                    else:
-                        print("partial")
-                        self.sbus_partial_line = line
+            for line in lines:
+                if not line.endswith(b'\r'):
+                    self.partial_line += line
                 else:
-                    self.textBox.insert(tk.INSERT, line.decode("ascii", errors='ignore') + '\n')
+                    if len(self.partial_line) > 0:
+                        line = self.partial_line + line
+                        self.partial_line = b''
+                    if line.startswith(b'sbsus:'):
+                        if line.endswith(b':sb\r'):
+                            self.process_incoming_sbus_line(line)
+                        else:
+                            print("how?")
+                            self.sbus_partial_line = line
+                    else:
+                        self.textBox.insert(tk.INSERT, line.decode("ascii", errors='ignore') + '\n')
         
         # autoscroll to the bottom
         self.textBox.see(tk.END)
