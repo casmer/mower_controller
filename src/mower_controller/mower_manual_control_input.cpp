@@ -45,18 +45,17 @@ namespace cotsbotics
 
         void MowerManualControlInputManager::tick()
         {
-
             MowerControlState new_state;
             new_state.left_motor.throttle_position = m_left_motor_throttle.read();
-            new_state.left_motor.zero_switch = m_left_motor_zero_switch.read();
+            new_state.left_motor.zero_switch = fromBool(m_left_motor_zero_switch.read());
             new_state.right_motor.throttle_position = m_right_motor_throttle.read();
-            new_state.right_motor.zero_switch = m_right_motor_zero_switch.read();
-            new_state.seat_switch_drive = m_seat_switch_drive_controls.read();
-            new_state.seat_switch_blade = m_seat_switch_blade_controls.read();
-            new_state.low_speed_drive = m_low_speed_drive.read();
-            new_state.brake_engaged = m_brake_engaged.read();
-            new_state.low_speed_cut = m_low_speed_cut.read();
-            new_state.blades_enabled = m_blades_enabled.read();
+            new_state.right_motor.zero_switch = fromBool(m_right_motor_zero_switch.read());
+            new_state.seat_switch_drive = fromBool(m_seat_switch_drive_controls.read());
+            new_state.seat_switch_blade = fromBool(m_seat_switch_blade_controls.read());
+            new_state.low_speed_drive = fromBool(m_low_speed_drive.read());
+            new_state.brake_engaged = fromBool(m_brake_engaged.read());
+            new_state.low_speed_cut = fromBool(m_low_speed_cut.read());
+            new_state.blades_enabled = fromBool(m_blades_enabled.read());
             m_state = new_state;
         };
 

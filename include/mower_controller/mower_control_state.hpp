@@ -1,12 +1,14 @@
 #pragma once
 
+#include "mower_controller/enum/mower_switch.hpp"
+
 namespace cotsbotics::mower_controller
 {
 
     struct MowerDriveMotorState
     {
-        int throttle_position{0};
-        bool zero_switch{false};
+        int throttle_position{1024/2};
+        MowerSwitch zero_switch{MowerSwitch::OPEN};
         int zero_switch_position{-1};
         
         bool operator==(MowerDriveMotorState const &o) const noexcept
@@ -29,17 +31,17 @@ namespace cotsbotics::mower_controller
         /// @brief Right drive motor state
         MowerDriveMotorState right_motor;
         /// @brief Seat Switch State for Drive Control Module
-        bool seat_switch_drive{false};
+        MowerSwitch seat_switch_drive{MowerSwitch::OPEN};
         /// @brief Seat Switch State for Blade Control Module
-        bool seat_switch_blade{false};
+        MowerSwitch seat_switch_blade{MowerSwitch::OPEN};
         /// @brief Low Speed Drive Enabled
-        bool low_speed_drive{false};
+        MowerSwitch low_speed_drive{MowerSwitch::OPEN};
         /// @brief Low Speed Cut Enabled
-        bool low_speed_cut{false};
+        MowerSwitch low_speed_cut{MowerSwitch::OPEN};
         /// @brief Blade Run Enable (PTO)
-        bool blades_enabled{false};
+        MowerSwitch blades_enabled{MowerSwitch::OPEN};
         /// @brief Brake Engaged
-        bool brake_engaged{false};
+        MowerSwitch brake_engaged{MowerSwitch::OPEN};
         
         bool operator==(MowerControlState const &o) const noexcept
         {

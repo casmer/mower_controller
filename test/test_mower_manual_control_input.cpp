@@ -19,15 +19,15 @@ MockDigitalInputPort blades_enabled;
 
 MowerControlState expected_state;
 expected_state.left_motor.throttle_position = 0.5f;
-expected_state.left_motor.zero_switch = true;
+expected_state.left_motor.zero_switch = MowerSwitch::OPEN;
 expected_state.right_motor.throttle_position = -0.5f;    
-expected_state.right_motor.zero_switch = false;
-expected_state.seat_switch_drive = true;
-expected_state.seat_switch_blade = false;
-expected_state.low_speed_drive = true;
-expected_state.brake_engaged = false;
-expected_state.low_speed_cut = true;
-expected_state.blades_enabled = false;
+expected_state.right_motor.zero_switch = MowerSwitch::CLOSED;
+expected_state.seat_switch_drive = MowerSwitch::OPEN;
+expected_state.seat_switch_blade = MowerSwitch::CLOSED;
+expected_state.low_speed_drive = MowerSwitch::OPEN;
+expected_state.brake_engaged = MowerSwitch::CLOSED;
+expected_state.low_speed_cut = MowerSwitch::OPEN;
+expected_state.blades_enabled = MowerSwitch::CLOSED;
 
 MowerManualControlInputManager manager(
     left_motor_zero_switch,
@@ -54,16 +54,16 @@ EXPECT_CALL(blades_enabled, setup()).Times(1);
 
 manager.setup();
 
-EXPECT_CALL(left_motor_zero_switch, read()).Times(1).WillOnce(testing::Return(expected_state.left_motor.zero_switch));
+EXPECT_CALL(left_motor_zero_switch, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.left_motor.zero_switch)));
 EXPECT_CALL(left_motor_throttle, read()).Times(1).WillOnce(testing::Return(expected_state.left_motor.throttle_position));
-EXPECT_CALL(right_motor_zero_switch, read()).Times(1).WillOnce(testing::Return(expected_state.right_motor.zero_switch));
+EXPECT_CALL(right_motor_zero_switch, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.right_motor.zero_switch)));
 EXPECT_CALL(right_motor_throttle, read()).Times(1).WillOnce(testing::Return(expected_state.right_motor.throttle_position));
-EXPECT_CALL(seat_switch_drive_controls, read()).Times(1).WillOnce(testing::Return(expected_state.seat_switch_drive));
-EXPECT_CALL(seat_switch_blade_controls, read()).Times(1).WillOnce(testing::Return(expected_state.seat_switch_blade));
-EXPECT_CALL(low_speed_drive, read()).Times(1).WillOnce(testing::Return(expected_state.low_speed_drive));
-EXPECT_CALL(brake_engaged, read()).Times(1).WillOnce(testing::Return(expected_state.brake_engaged));
-EXPECT_CALL(low_speed_cut, read()).Times(1).WillOnce(testing::Return(expected_state.low_speed_cut));
-EXPECT_CALL(blades_enabled, read()).Times(1).WillOnce(testing::Return(expected_state.blades_enabled));
+EXPECT_CALL(seat_switch_drive_controls, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.seat_switch_drive)));
+EXPECT_CALL(seat_switch_blade_controls, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.seat_switch_blade)));
+EXPECT_CALL(low_speed_drive, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.low_speed_drive)));
+EXPECT_CALL(brake_engaged, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.brake_engaged)));
+EXPECT_CALL(low_speed_cut, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.low_speed_cut)));
+EXPECT_CALL(blades_enabled, read()).Times(1).WillOnce(testing::Return(toBool(expected_state.blades_enabled)));
 
 manager.tick();
 

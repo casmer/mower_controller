@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pin_definitions.hpp"
-
+#include <Adafruit_MCP4728.h>
 using namespace cotsbotics::mower_controller;
 
 namespace cotsbotics::mower_controller
@@ -26,9 +26,9 @@ namespace cotsbotics::mower_controller
         class Outputs
         {
         public:
-            static dacAnalogPin_t constexpr LEFT_MOTOR_THROTTLE = DAC1;
+            static MCP4728_channel_t constexpr LEFT_MOTOR_THROTTLE = MCP4728_CHANNEL_A;
             static digitalPin_t constexpr LEFT_MOTOR_ZERO_SWITCH = D24;
-            static dacAnalogPin_t constexpr RIGHT_MOTOR_THROTTLE = DAC2;
+            static MCP4728_channel_t constexpr RIGHT_MOTOR_THROTTLE = MCP4728_CHANNEL_B;
             static digitalPin_t constexpr RIGHT_MOTOR_ZERO_SWITCH = D26;
             static digitalPin_t constexpr SEAT_SWITCH_DRIVE_CONTROLS = D22;
             static digitalPin_t constexpr SEAT_SWITCH_BLADE_CONTROLS = D30;

@@ -10,9 +10,6 @@ namespace cotsbotics::mower_controller
         /// @brief set the output value of the port
         virtual void write(int value) = 0;
 
-        /// @brief For periodic updates if needed
-        virtual void tick() = 0;
-
         /// @brief setup the port
         virtual void setup() = 0;
     };
