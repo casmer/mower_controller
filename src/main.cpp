@@ -32,27 +32,63 @@ low_speed_cut,
 blades_enabled
 );
 
+static constexpr unsigned long PRINT_DELAY_MS = 40;
+millisDelay printDelay;
+
 void setup() {
   /* Serial to display data */
   Serial.begin(115200);
   while (!Serial) {}
   /* Begin the SBUS communication */
   sbus_receiver.Begin();
+  printDelay.start(PRINT_DELAY_MS);
+
 }
 
 void loop () {
+  MowerControlState new_state, last_state;
   sbus_receiver.tick();
+  manual_control_input_manager.tick();
+  
+  new_state = manual_control_input_manager.getState();
+  if (new_state != last_state || printDelay.justFinished())
+  {
+    Serial.print("input:");
+    Serial.print(new_state.left_motor.throttle_position);
+    Serial.print("\t");
+    Serial.print(new_state.left_motor.zero_switch_position);
+    Serial.print("\t");
+    Serial.print(new_state.left_motor.zero_switch ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.right_motor.throttle_position);
+    Serial.print("\t");
+    Serial.print(new_state.right_motor.zero_switch ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.left_motor.zero_switch_position);
+    Serial.print("\t");
+    Serial.print(new_state.seat_switch_drive ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.seat_switch_blade ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.low_speed_drive ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.brake_engaged ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.low_speed_cut ? 1 : 0);
+    Serial.print("\t");
+    Serial.print(new_state.blades_enabled ? 1 : 0);
+    Serial.println(":input");
+    printDelay.start(PRINT_DELAY_MS);
+
+  }
+  last_state = new_state;
+
 
   delay(20);
   if (sbus_receiver.no_data() || sbus_receiver.get_failsafe())
   {
     static int print_counter=0;
     print_counter++;
-    if (print_counter>=200)
-    {
-      Serial.write(sbus_receiver.get_failsafe() ? "." : "-" );
-      print_counter=0;
-    }
 
 
   }

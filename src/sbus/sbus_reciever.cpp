@@ -10,6 +10,8 @@ void SbusReceiver::Begin()
         {
             /* Begin the SBUS communication */
             sbus_rx.Begin();
+            printDelay.start(PRINT_DELAY_MS);
+
         }
 
         void SbusReceiver::tick()
