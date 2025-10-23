@@ -86,6 +86,22 @@ class GUI:
             MowerIOInfo(11 ,"low speed cut", IOType.DIGITAL),
             MowerIOInfo(12 ,"blades enabled", IOType.DIGITAL),
         ]
+        
+        self.mower_dio_output_config = [        
+            MowerIOInfo(1 ,"left throttle_position", IOType.ANALOG),
+            MowerIOInfo(2 ,"left zero", IOType.DIGITAL),
+            MowerIOInfo(3 ,"left zero pos", IOType.ANALOG),
+            MowerIOInfo(4 ,"right throttle pos", IOType.ANALOG),
+            MowerIOInfo(5 ,"right zero", IOType.DIGITAL),
+            MowerIOInfo(6 ,"right zero pos", IOType.ANALOG),
+            MowerIOInfo(7 ,"seat drive", IOType.DIGITAL),
+            MowerIOInfo(8 ,"seat blade", IOType.DIGITAL),
+            MowerIOInfo(9 ,"low speed drive", IOType.DIGITAL),
+            MowerIOInfo(10 ,"brake engaged", IOType.DIGITAL),
+            MowerIOInfo(11 ,"low speed cut", IOType.DIGITAL),
+            MowerIOInfo(12 ,"blades enabled", IOType.DIGITAL),
+        ]
+        
         self.isAnyPortAvailable = False
         self.isStarted = False
         self.serialPortName = None
@@ -229,7 +245,9 @@ class GUI:
         self.connectButton.grid(column=7, row=current_row, sticky=(N, E))
 
         current_row += 1
-        
+        self.inputs_label = tk.Label(self.topFrame, text="RC Controller Inputs")
+        self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        current_row += 1
         
         self.radio_channels = []
         self.radio_channel_labels = []
@@ -252,7 +270,10 @@ class GUI:
                 column = 0
 
         current_row = row + 1   
-
+        self.inputs_label = tk.Label(self.topFrame, text="Mower DIO Inputs")
+        self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        current_row += 1
+        
         self.mower_input_io = []
         self.mower_input_io_labels = []
         column = 0
@@ -275,8 +296,39 @@ class GUI:
             column += 1
             if column >= 8:
                 column = 0
+                
+        current_row = row + 1  
+        
+        self.outputs_label = tk.Label(self.topFrame, text="Mower DIO Outputs")
+        self.outputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        current_row += 1
+        
+        self.mower_output_io = []
+        self.mower_output_io_labels = []
+        column = 0
+        row = current_row
+        for ioInfo in self.mower_dio_output_config:
+            if ioInfo.io_type == IOType.DIGITAL:
+                ioInfo.value = tk.BooleanVar()
+            else:
+                ioInfo.value = tk.IntVar()
+        
+        for position in range(0,12):
+            ioInfo = self.mower_dio_output_config[position]
+            row = current_row + position // 4
+            self.mower_output_io_labels.append(tk.Label(self.topFrame, text=ioInfo.name))
+            self.mower_output_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
+            
+            self.mower_output_io_labels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            column +=1
+            self.mower_output_io[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            column += 1
+            if column >= 8:
+                column = 0
 
         current_row = row + 1   
+      
+        
         
         self.textBox.configure( padx=padding, pady=padding)
         self.textBox.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
@@ -409,7 +461,24 @@ class GUI:
                 print("IndexError on channel", ioInfo.number, "processing line:", io_input_values)
                 ioInfo.value.set(0)
                 continue
+    def process_incoming_io_output_line(self, line):
+        io_output_values = line[6:-7].strip().split(b'\t')
+        for ioInfo in self.mower_dio_output_config:
+            try:
+                if (ioInfo.io_type == IOType.DIGITAL):
+                    ioInfo.value.set(bool(int(io_output_values[ioInfo.number - 1])))
+                else:
+                    ioInfo.value.set(int(io_output_values[ioInfo.number - 1]))
                 
+            except ValueError:
+                print("ValueError on channel", ioInfo.number, "processing line:", io_output_values)
+                ioInfo.value.set(0)
+                continue
+            except IndexError:
+                print("IndexError on channel", ioInfo.number, "processing line:", io_output_values)
+                ioInfo.value.set(0)
+                continue
+            
     def recursive_update_textbox(self):
         serialPortBuffer = self.serialPortManager.read_buffer()
         # Update textbox in a kind of recursive function using Tkinter after() method
@@ -432,6 +501,12 @@ class GUI:
                     elif line.startswith(b'input:'):
                         if line.endswith(b':input\r'):
                             self.process_incoming_io_input_line(line)
+                        else:
+                            print("how?")
+                            self.sbus_partial_line = line
+                    elif line.startswith(b'output:'):
+                        if line.endswith(b':output\r'):
+                            self.process_incoming_io_output_line(line)
                         else:
                             print("how?")
                             self.sbus_partial_line = line

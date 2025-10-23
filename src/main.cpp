@@ -88,7 +88,7 @@ void setup() {
 }
 void printState(MowerControlState const &state, bool is_input)
 {
-   if (is_input)
+    if (is_input)
     {
       Serial.print("input:");
     }
@@ -146,7 +146,6 @@ void loop () {
 
   }
   last_state = new_state;
-
   
   new_output_state = control_output_manager.getState();
   if (new_output_state != last_output_state || outputPrintDelay.justFinished())
