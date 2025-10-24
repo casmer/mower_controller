@@ -16,7 +16,7 @@ namespace cotsbotics::mower_controller
 
     void BoardAnalogInput::setup()
     {
-        pinMode(_pinNumber, OUTPUT); 
+        pinMode(_pinNumber, INPUT); 
     }
 
 }; // cotsbotics::mower_controller

@@ -441,7 +441,7 @@ class GUI:
             try:
                 self.radio_channel_values[i].set(int(channel_values[i]))
             except ValueError:
-                print("ValueError on channel", i, "with value", channel_values[i])
+                print("sbus ValueError on channel", i, "with value", channel_values[i])
                 self.radio_channel_values[i].set(-1)
                 
     def process_incoming_io_input_line(self, line):
@@ -454,15 +454,15 @@ class GUI:
                     ioInfo.value.set(int(io_input_values[ioInfo.number - 1]))
                 
             except ValueError:
-                print("ValueError on channel", ioInfo.number, "processing line:", io_input_values)
+                print("input ValueError on channel", ioInfo.number, " value: ", io_input_values[ioInfo.number - 1], " processing line:", io_input_values)
                 ioInfo.value.set(0)
                 continue
             except IndexError:
-                print("IndexError on channel", ioInfo.number, "processing line:", io_input_values)
+                print("input IndexError on channel", ioInfo.number, "processing line:", io_input_values)
                 ioInfo.value.set(0)
                 continue
     def process_incoming_io_output_line(self, line):
-        io_output_values = line[6:-7].strip().split(b'\t')
+        io_output_values = line[7:-8].strip().split(b'\t')
         for ioInfo in self.mower_dio_output_config:
             try:
                 if (ioInfo.io_type == IOType.DIGITAL):
@@ -471,11 +471,11 @@ class GUI:
                     ioInfo.value.set(int(io_output_values[ioInfo.number - 1]))
                 
             except ValueError:
-                print("ValueError on channel", ioInfo.number, "processing line:", io_output_values)
+                print("output ValueError on channel", ioInfo.number,  " value: ", io_output_values[ioInfo.number - 1], " processing line:", io_output_values)
                 ioInfo.value.set(0)
                 continue
             except IndexError:
-                print("IndexError on channel", ioInfo.number, "processing line:", io_output_values)
+                print("output IndexError on channel", ioInfo.number, "processing line:", io_output_values)
                 ioInfo.value.set(0)
                 continue
             
@@ -506,6 +506,7 @@ class GUI:
                             self.sbus_partial_line = line
                     elif line.startswith(b'output:'):
                         if line.endswith(b':output\r'):
+                            print(line)
                             self.process_incoming_io_output_line(line)
                         else:
                             print("how?")

@@ -28,7 +28,7 @@ namespace cotsbotics::mower_controller
 
         void tick();
 
-        MowerControlState const &getState() const;
+        MowerControlState &getState() ;
 
     private:
         MowerControlState m_state;

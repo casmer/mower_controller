@@ -11,6 +11,11 @@ namespace cotsbotics::mower_controller
     class DacAnalogOutput : public IAnalogOutputPort
     {
     public:
+        /// @brief Maximum DAC value    
+        static constexpr uint16_t MAX_DAC_VALUE = 4095;
+        /// @brief Minimum DAC value
+        static constexpr uint16_t MIN_DAC_VALUE = 0;
+
 
         explicit DacAnalogOutput(MCP4728_channel_t pinNumber, Adafruit_MCP4728& mcp);
         /// @brief Virtual destructor

@@ -57,7 +57,7 @@ namespace cotsbotics
             m_blades_enabled.write(toBool(m_state.blades_enabled));
         };
 
-        MowerControlState const &MowerControlOutputManager::getState() const
+        MowerControlState &MowerControlOutputManager::getState()
         {
             return m_state;
         };

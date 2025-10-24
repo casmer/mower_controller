@@ -5,18 +5,20 @@
 #include "mower_controller/mower_control_output.hpp"
 #include "physical_io/BoardDigitalInput.hpp"
 #include "physical_io/BoardDigitalOutput.hpp"
-#include "physical_io/BoardAnalogInput.hpp"
+#include "physical_io/AdcAnalogInput.hpp"
 #include "physical_io/DacAnalogOutput.hpp"
 #include "mower_controller/mower_control_pin_assignments.hpp"
+
 
 using namespace cotsbotics::mower_controller;
 cotsbotics::SbusReceiver sbus_receiver;
 Adafruit_MCP4728 mcp;
+Adafruit_ADS1115  ads;
 
 BoardDigitalInput in_left_motor_zero_switch(MowerControlPinAssignments::Inputs::LEFT_MOTOR_ZERO_SWITCH);
-BoardAnalogInput in_left_motor_throttle(MowerControlPinAssignments::Inputs::LEFT_MOTOR_THROTTLE);
+AdcAnalogInput in_left_motor_throttle(MowerControlPinAssignments::Inputs::LEFT_MOTOR_THROTTLE, ads);
 BoardDigitalInput in_right_motor_zero_switch(MowerControlPinAssignments::Inputs::RIGHT_MOTOR_ZERO_SWITCH);
-BoardAnalogInput in_right_motor_throttle(MowerControlPinAssignments::Inputs::RIGHT_MOTOR_THROTTLE);
+AdcAnalogInput in_right_motor_throttle(MowerControlPinAssignments::Inputs::RIGHT_MOTOR_THROTTLE, ads);
 BoardDigitalInput in_seat_switch_drive_controls(MowerControlPinAssignments::Inputs::SEAT_SWITCH_DRIVE_CONTROLS);
 BoardDigitalInput in_seat_switch_blade_controls(MowerControlPinAssignments::Inputs::SEAT_SWITCH_BLADE_CONTROLS);
 BoardDigitalInput in_low_speed_drive(MowerControlPinAssignments::Inputs::LOW_SPEED_DRIVE);
@@ -66,6 +68,9 @@ static constexpr unsigned long PRINT_DELAY_MS = 40;
 millisDelay inputPrintDelay;
 millisDelay outputPrintDelay;
 
+millisDelay changeValueDelayTimer;
+
+
 void setup() {
   /* Serial to display data */
   Serial.begin(115200);
@@ -73,17 +78,46 @@ void setup() {
   /* Begin the SBUS communication */
   sbus_receiver.Begin();
 
-  
-  // Try to initialize!
-  if (!mcp.begin()) {
+  int retrys = 10;
+  while (retrys-- > 0) {
+    if (mcp.begin()) {
+      break;
+    }
+    Serial.println("MCP4728 not found, retrying...");
+    delay(100);
+  }
+  if (retrys <= 0) {
     Serial.println("Failed to find MCP4728 chip");
     while (1) {
       delay(10);
     }
   }
 
+  retrys = 10;
+  while (retrys-- > 0) {
+    if (ads.begin()) {
+      break;
+    }
+    Serial.println("ADS not found, retrying...");
+    delay(100);
+  } 
+  if (retrys <= 0) {
+    Serial.println("Failed to find ADS chip");
+    while (1) {
+      delay(10);
+    }
+  }
+
+  // ads.setVoltageRange_mV(ADS1115_RANGE_6144);
+  // ads.setCompareChannels(ADS1115_COMP_0_GND);
+  // ads.setMeasureMode(ADS1115_CONTINUOUS); 
+
+  control_output_manager.setup();
+  manual_control_input_manager.setup();
+
   inputPrintDelay.start(PRINT_DELAY_MS);
   outputPrintDelay.start(PRINT_DELAY_MS);
+  changeValueDelayTimer.start(2000);
 
 }
 void printState(MowerControlState const &state, bool is_input)
@@ -131,9 +165,9 @@ void printState(MowerControlState const &state, bool is_input)
 
 
 void loop () {
-  MowerControlState new_state, last_state;
+  MowerControlState new_state,  new_output_state;
 
-  MowerControlState new_output_state, last_output_state;
+  static MowerControlState last_state, last_output_state;
   sbus_receiver.tick();
   manual_control_input_manager.tick();
   control_output_manager.tick();
@@ -143,21 +177,45 @@ void loop () {
   {
     printState(new_state, true);
     inputPrintDelay.start(PRINT_DELAY_MS);
-
+    last_state = new_state;
   }
-  last_state = new_state;
   
   new_output_state = control_output_manager.getState();
   if (new_output_state != last_output_state || outputPrintDelay.justFinished())
   {
     printState(new_output_state, false);
     outputPrintDelay.start(PRINT_DELAY_MS);
+    last_output_state = new_output_state;
+  }
+
+  static int throttle_position = 4095;
+  if (changeValueDelayTimer.justFinished())
+  {
+    // Toggle some outputs for testing
+    static bool toggle = false;
+    toggle = !toggle;
+    control_output_manager.getState().blades_enabled =fromBool(toggle);
+    control_output_manager.getState().low_speed_cut = fromBool(toggle);
+    control_output_manager.getState().left_motor.throttle_position = throttle_position;;
+    control_output_manager.getState().right_motor.throttle_position = 4095 - throttle_position;
+
+    if (throttle_position >= 4095)
+    {
+      throttle_position = 0;
+    }
+    else
+    {
+      throttle_position+= (4096/4);
+    }
+    changeValueDelayTimer.start(2000);
+    Serial.print("Throttle: ");
+    Serial.print(throttle_position);
+    Serial.print(" toggle: ");
+    Serial.println(toggle);
 
   }
-  last_output_state = new_output_state;
 
-
-  delay(20);
+  delay(10);
   if (sbus_receiver.no_data() || sbus_receiver.get_failsafe())
   {
     static int print_counter=0;
