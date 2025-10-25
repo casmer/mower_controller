@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pin_definitions.hpp"
-#include <Adafruit_MCP4728.h>
 using namespace cotsbotics::mower_controller;
 
 namespace cotsbotics::mower_controller
@@ -12,9 +11,9 @@ namespace cotsbotics::mower_controller
         class Inputs
         {
         public:
-            static analogPin_t constexpr LEFT_MOTOR_THROTTLE = A1;
+            static analogPin_t constexpr LEFT_MOTOR_THROTTLE = ADC1;
             static digitalPin_t constexpr LEFT_MOTOR_ZERO_SWITCH = D25;
-            static analogPin_t constexpr RIGHT_MOTOR_THROTTLE = A2;
+            static analogPin_t constexpr RIGHT_MOTOR_THROTTLE = ADC0;
             static digitalPin_t constexpr RIGHT_MOTOR_ZERO_SWITCH = D27;
             static digitalPin_t constexpr SEAT_SWITCH_DRIVE_CONTROLS = D23;
             static digitalPin_t constexpr SEAT_SWITCH_BLADE_CONTROLS = D31;
@@ -26,9 +25,9 @@ namespace cotsbotics::mower_controller
         class Outputs
         {
         public:
-            static MCP4728_channel_t constexpr LEFT_MOTOR_THROTTLE = MCP4728_CHANNEL_A;
+            static analogPin_t constexpr LEFT_MOTOR_THROTTLE = MCP4728_CHANNEL_A;
             static digitalPin_t constexpr LEFT_MOTOR_ZERO_SWITCH = D24;
-            static MCP4728_channel_t constexpr RIGHT_MOTOR_THROTTLE = MCP4728_CHANNEL_B;
+            static analogPin_t constexpr RIGHT_MOTOR_THROTTLE = MCP4728_CHANNEL_B;
             static digitalPin_t constexpr RIGHT_MOTOR_ZERO_SWITCH = D26;
             static digitalPin_t constexpr SEAT_SWITCH_DRIVE_CONTROLS = D22;
             static digitalPin_t constexpr SEAT_SWITCH_BLADE_CONTROLS = D30;

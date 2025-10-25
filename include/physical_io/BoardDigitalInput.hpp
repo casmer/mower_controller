@@ -8,7 +8,7 @@ namespace cotsbotics::mower_controller
     {
     public:
 
-        explicit BoardDigitalInput(int pinNumber);
+        explicit BoardDigitalInput(int pin_number);
         /// @brief Virtual destructor
         virtual ~BoardDigitalInput() = default;
 
@@ -18,7 +18,7 @@ namespace cotsbotics::mower_controller
         void setup();
     private:
         // Pin number for the digital input
-        int _pinNumber;
+        int _pin_number;
 
     };
 

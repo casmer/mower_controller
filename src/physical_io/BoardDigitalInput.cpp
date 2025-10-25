@@ -5,18 +5,18 @@
 
 namespace cotsbotics::mower_controller
 {
-    BoardDigitalInput::BoardDigitalInput(int pinNumber)
-        : _pinNumber(pinNumber)
+    BoardDigitalInput::BoardDigitalInput(int pin_number)
+        : _pin_number(pin_number)
     {}
 
     bool BoardDigitalInput::read() const
     {
-        return (digitalRead(_pinNumber)==HIGH); 
+        return (digitalRead(_pin_number)==HIGH); 
     }
 
     void BoardDigitalInput::setup()
     {
-        pinMode(_pinNumber, INPUT); 
+        pinMode(_pin_number, INPUT); 
     }
 
 }; // cotsbotics::mower_controller

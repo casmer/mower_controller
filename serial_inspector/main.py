@@ -496,20 +496,16 @@ class GUI:
                         if line.endswith(b':sb\r'):
                             self.process_incoming_sbus_line(line)
                         else:
-                            print("how?")
                             self.sbus_partial_line = line
                     elif line.startswith(b'input:'):
                         if line.endswith(b':input\r'):
                             self.process_incoming_io_input_line(line)
                         else:
-                            print("how?")
                             self.sbus_partial_line = line
                     elif line.startswith(b'output:'):
                         if line.endswith(b':output\r'):
-                            print(line)
                             self.process_incoming_io_output_line(line)
                         else:
-                            print("how?")
                             self.sbus_partial_line = line
                     else:
                         self.textBox.insert(tk.INSERT, line.decode("ascii", errors='ignore') + '\n')
@@ -569,8 +565,6 @@ class SerialPortManager:
                     # Read only one byte from serial port
                     serialPortByte = self.serialPort.read(1)
                     self.serialPortBuffer.append(int.from_bytes(serialPortByte, byteorder='big'))
-                    # Process incoming bytes
-                    self.main_process(serialPortByte)
 
         if self.serialPort.isOpen():
             self.serialPort.close()
@@ -586,15 +580,6 @@ class SerialPortManager:
         if self.serialPort.isOpen():
             self.serialPort.close()
 
-    def main_process(self, inputByte):
-        # Print the received byte in Python terminal
-        return
-        try:
-            character = inputByte.decode("ascii")
-        except UnicodeDecodeError:
-            pass
-        else:
-            print(character, end="")
 
 
 if __name__ == "__main__":

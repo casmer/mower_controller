@@ -8,17 +8,18 @@
 #include "physical_io/AdcAnalogInput.hpp"
 #include "physical_io/DacAnalogOutput.hpp"
 #include "mower_controller/mower_control_pin_assignments.hpp"
-
-
+#include "physical_io/AdcManager.hpp"
+#include  "millisDelay.h"
 using namespace cotsbotics::mower_controller;
 cotsbotics::SbusReceiver sbus_receiver;
 Adafruit_MCP4728 mcp;
 Adafruit_ADS1115  ads;
+AdcManager adc_manager(ads);
 
 BoardDigitalInput in_left_motor_zero_switch(MowerControlPinAssignments::Inputs::LEFT_MOTOR_ZERO_SWITCH);
-AdcAnalogInput in_left_motor_throttle(MowerControlPinAssignments::Inputs::LEFT_MOTOR_THROTTLE, ads);
+AdcAnalogInput in_left_motor_throttle(MowerControlPinAssignments::Inputs::LEFT_MOTOR_THROTTLE, adc_manager);
 BoardDigitalInput in_right_motor_zero_switch(MowerControlPinAssignments::Inputs::RIGHT_MOTOR_ZERO_SWITCH);
-AdcAnalogInput in_right_motor_throttle(MowerControlPinAssignments::Inputs::RIGHT_MOTOR_THROTTLE, ads);
+AdcAnalogInput in_right_motor_throttle(MowerControlPinAssignments::Inputs::RIGHT_MOTOR_THROTTLE, adc_manager);
 BoardDigitalInput in_seat_switch_drive_controls(MowerControlPinAssignments::Inputs::SEAT_SWITCH_DRIVE_CONTROLS);
 BoardDigitalInput in_seat_switch_blade_controls(MowerControlPinAssignments::Inputs::SEAT_SWITCH_BLADE_CONTROLS);
 BoardDigitalInput in_low_speed_drive(MowerControlPinAssignments::Inputs::LOW_SPEED_DRIVE);
@@ -92,7 +93,8 @@ void setup() {
       delay(10);
     }
   }
-
+  ads.setGain(GAIN_TWOTHIRDS);
+  ads.setDataRate(RATE_ADS1015_3300SPS);
   retrys = 10;
   while (retrys-- > 0) {
     if (ads.begin()) {
@@ -114,7 +116,7 @@ void setup() {
 
   control_output_manager.setup();
   manual_control_input_manager.setup();
-
+  adc_manager.setup();
   inputPrintDelay.start(PRINT_DELAY_MS);
   outputPrintDelay.start(PRINT_DELAY_MS);
   changeValueDelayTimer.start(2000);
@@ -171,6 +173,7 @@ void loop () {
   sbus_receiver.tick();
   manual_control_input_manager.tick();
   control_output_manager.tick();
+ adc_manager.tick();
 
   new_state = manual_control_input_manager.getState();
   if (new_state != last_state || inputPrintDelay.justFinished())
@@ -215,12 +218,6 @@ void loop () {
 
   }
 
-  delay(10);
-  if (sbus_receiver.no_data() || sbus_receiver.get_failsafe())
-  {
-    static int print_counter=0;
-    print_counter++;
+  delayMicroseconds(10);
 
-
-  }
 }

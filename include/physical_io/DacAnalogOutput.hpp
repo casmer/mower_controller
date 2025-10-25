@@ -3,7 +3,7 @@
 // Demo for configuring the Vref of the MCP4728 4-Channel 12-bit I2C DAC
 #include <Adafruit_MCP4728.h>
 
-
+#include "mower_controller/pin_definitions.hpp"
 #include "physical_io/IAnalogOutputPort.hpp"
 
 namespace cotsbotics::mower_controller
@@ -17,7 +17,7 @@ namespace cotsbotics::mower_controller
         static constexpr uint16_t MIN_DAC_VALUE = 0;
 
 
-        explicit DacAnalogOutput(MCP4728_channel_t pinNumber, Adafruit_MCP4728& mcp);
+        explicit DacAnalogOutput(analogPin_t pinNumber, Adafruit_MCP4728& mcp);
         /// @brief Virtual destructor
         virtual ~DacAnalogOutput() = default;
 
@@ -28,7 +28,7 @@ namespace cotsbotics::mower_controller
         void setup();
     private:
         // Pin number for the digital input
-        MCP4728_channel_t _channel;
+        analogPin_t _channel;
         Adafruit_MCP4728& _mcp;
 
     };

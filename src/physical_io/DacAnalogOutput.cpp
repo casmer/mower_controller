@@ -5,14 +5,14 @@
 
 namespace cotsbotics::mower_controller
 {
-    DacAnalogOutput::DacAnalogOutput(MCP4728_channel_t channel, Adafruit_MCP4728& mcp)
+    DacAnalogOutput::DacAnalogOutput(analogPin_t channel, Adafruit_MCP4728& mcp)
             : _channel(channel), _mcp(mcp)
         {}
 
     void DacAnalogOutput::write(int value)
     {
         _mcp.setChannelValue(
-            _channel,
+            static_cast<MCP4728_channel_t>(_channel),
             constrain(static_cast<uint16_t>(value), MIN_DAC_VALUE, MAX_DAC_VALUE),
             MCP4728_VREF_VDD,
             MCP4728_GAIN_2X);
@@ -21,11 +21,11 @@ namespace cotsbotics::mower_controller
 
     void DacAnalogOutput::setup()
     {
-        uint16_t current_value = _mcp.getChannelValue(_channel);
+        uint16_t current_value = _mcp.getChannelValue(static_cast<MCP4728_channel_t>(_channel));
         if (current_value != (MIN_DAC_VALUE + MAX_DAC_VALUE) / 2)
         {
             _mcp.setChannelValue(
-                _channel,
+                static_cast<MCP4728_channel_t>(_channel),
                 (MIN_DAC_VALUE + MAX_DAC_VALUE) / 2,
             MCP4728_VREF_VDD,
             MCP4728_GAIN_2X);

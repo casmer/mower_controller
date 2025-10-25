@@ -5,24 +5,24 @@
 
 namespace cotsbotics::mower_controller
 {
-    AdcAnalogInput::AdcAnalogInput(int pinNumber, Adafruit_ADS1115& adc)
-        : _pinNumber(pinNumber),
-            _adc(adc)
+    AdcAnalogInput::AdcAnalogInput(int pin_number, AdcManager& adc_manager)
+        : _pin_number(pin_number),
+            _adc_manager(adc_manager)
     {}
     
-uint32_t me_map(uint32_t x, uint32_t in_max, uint32_t out_max)
+int me_map(int x, int in_max, int out_max)
 {
   return (x) * (out_max) / (in_max);
 }
     int AdcAnalogInput::read() const
     {
-        return static_cast<int>(me_map(_adc.readADC_SingleEnded(_pinNumber), ANALOG_MAX, 4095U));
+        // return _adc_manager.readChannel(_pin_number);
+        return static_cast<int>(map(_adc_manager.readChannel(_pin_number), 0, 26666,0, 4095));
     }
 
     void AdcAnalogInput::setup()
     {
-
-        pinMode(_pinNumber, INPUT); 
+        // No setup required for ADC channel
     }
 
 }; // cotsbotics::mower_controller

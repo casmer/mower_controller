@@ -1,7 +1,7 @@
 #pragma once
 
 #include "physical_io/IAnalogInputPort.hpp"
-#include <Adafruit_ADS1X15.h>
+#include "physical_io/AdcManager.hpp"
 
 namespace cotsbotics::mower_controller
 {
@@ -9,7 +9,7 @@ namespace cotsbotics::mower_controller
     {
     public:
 
-        explicit AdcAnalogInput(int pinNumber, Adafruit_ADS1115& adc);
+        explicit AdcAnalogInput(int pin_number, AdcManager& adc_manager);
         /// @brief Virtual destructor
         virtual ~AdcAnalogInput() = default;
 
@@ -18,12 +18,10 @@ namespace cotsbotics::mower_controller
 
         void setup();
 
-        constexpr static uint16_t ANALOG_MAX = 65535U; // 16-bit ADC
-        constexpr static uint16_t ANALOG_MIN = 0U; // 16-bit ADC
     private:
         // Pin number for the digital input
-        int _pinNumber;
-        Adafruit_ADS1115& _adc; 
+        uint16_t _pin_number;;
+        AdcManager& _adc_manager; 
     };
 
 }; // cotsbotics::mower_controller
