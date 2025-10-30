@@ -31,17 +31,14 @@ namespace cotsbotics
 
         bool get_lost_frame() { return data.lost_frame; };
         bool get_failsafe() { return data.failsafe; };
-
+        static constexpr int8_t NUM_CH = bfs::SbusData::NUM_CH;
+        
     private:
         bool m_no_data_received{true};
         /* SBUS object, reading SBUS */
         bfs::SbusRx sbus_rx{&Serial2, true};
         /* SBUS data */
         bfs::SbusData data;
-        // output current state data
-        millisDelay printDelay;
-
-        static constexpr unsigned long PRINT_DELAY_MS = 40;
     };
 }; // cotsbotics
 

@@ -16,7 +16,7 @@ namespace cotsbotics::mower_controller
 
     void BoardDigitalInput::setup()
     {
-        pinMode(_pin_number, INPUT); 
+        pinMode(_pin_number, INPUT_PULLUP); // Enable internal pull-up resistor
     }
 
 }; // cotsbotics::mower_controller

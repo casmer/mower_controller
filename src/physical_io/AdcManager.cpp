@@ -44,6 +44,7 @@ namespace cotsbotics::mower_controller
         }
         if (_inputPrintDelay.justFinished())
         {
+            #ifdef SERIAL_DEBUG
             Serial.print("ADC Channels: ");
             for (uint16_t i = 0; i < MAX_CHANNEL; ++i)
             {
@@ -53,6 +54,7 @@ namespace cotsbotics::mower_controller
                 Serial.print("          ");
             }
             Serial.println();
+            #endif
             _inputPrintDelay.start(PRINT_DELAY_MS);
         }
     }

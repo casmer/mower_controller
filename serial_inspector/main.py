@@ -36,7 +36,7 @@ class MowerIOInfo:
 class GUI:
     # GUI main class
     def __init__(self, title):
-
+        self.print_dio_inputs_raw = False
         self.portNamesList = []
         self.baudRatesList = [
             1200,
@@ -54,18 +54,18 @@ class GUI:
         ]
         
         self.channel_config = [
-            ChannelInfo(3, "Left Stick Y"),
-            ChannelInfo(4, "Left Stick X" ),
-            ChannelInfo(1, "Right Stick X"),
-            ChannelInfo(2, "Right Stick Y"),
-            ChannelInfo(5, "Channel 5" ),
-            ChannelInfo(6, "Channel 6" ),
-            ChannelInfo(7, "Channel 7" ),
-            ChannelInfo(8, "Channel 8" ),
-            ChannelInfo(9, "Channel 9" ),
-            ChannelInfo(10, "Channel 10" ),
-            ChannelInfo(11, "Channel 11" ),
-            ChannelInfo(12, "Channel 12" ),
+            ChannelInfo(3, "Left Stick Y (3)"),
+            ChannelInfo(4, "Left Stick X (4)" ),
+            ChannelInfo(1, "Right Stick X (1)"),
+            ChannelInfo(2, "Right Stick Y (2)"),
+            ChannelInfo(5, "Channel 5 (H)" ),
+            ChannelInfo(6, "Channel 6 (VR A)" ),
+            ChannelInfo(7, "Channel 7 (VR C)" ),
+            ChannelInfo(8, "Channel 8 (VR B)" ),
+            ChannelInfo(9, "Channel 9 (B)" ),
+            ChannelInfo(10, "Channel 10 (A)" ),
+            ChannelInfo(11, "Channel 11 (D)" ),
+            ChannelInfo(12, "Channel 12 (C)" ),
             ChannelInfo(13, "Channel 13" ),
             ChannelInfo(14, "Channel 14" ),
             ChannelInfo(15, "Channel 15" ),
@@ -74,32 +74,32 @@ class GUI:
         
         self.mower_dio_input_config = [        
             MowerIOInfo(1 ,"left throttle_position", IOType.ANALOG),
-            MowerIOInfo(2 ,"left zero", IOType.DIGITAL),
-            MowerIOInfo(3 ,"left zero pos", IOType.ANALOG),
-            MowerIOInfo(4 ,"right throttle pos", IOType.ANALOG),
-            MowerIOInfo(5 ,"right zero", IOType.DIGITAL),
-            MowerIOInfo(6 ,"right zero pos", IOType.ANALOG),
+            MowerIOInfo(3 ,"left zero", IOType.DIGITAL),
+            MowerIOInfo(2 ,"left zero pos", IOType.ANALOG),
             MowerIOInfo(7 ,"seat drive", IOType.DIGITAL),
+            MowerIOInfo(4 ,"right throttle pos", IOType.ANALOG),
+            MowerIOInfo(6 ,"right zero", IOType.DIGITAL),
+            MowerIOInfo(5 ,"right zero pos", IOType.ANALOG),
             MowerIOInfo(8 ,"seat blade", IOType.DIGITAL),
-            MowerIOInfo(9 ,"low speed drive", IOType.DIGITAL),
             MowerIOInfo(10 ,"brake engaged", IOType.DIGITAL),
-            MowerIOInfo(11 ,"low speed cut", IOType.DIGITAL),
             MowerIOInfo(12 ,"blades enabled", IOType.DIGITAL),
+            MowerIOInfo(9 ,"low speed drive", IOType.DIGITAL),
+            MowerIOInfo(11 ,"low speed cut", IOType.DIGITAL),
         ]
         
         self.mower_dio_output_config = [        
             MowerIOInfo(1 ,"left throttle_position", IOType.ANALOG),
-            MowerIOInfo(2 ,"left zero", IOType.DIGITAL),
-            MowerIOInfo(3 ,"left zero pos", IOType.ANALOG),
-            MowerIOInfo(4 ,"right throttle pos", IOType.ANALOG),
-            MowerIOInfo(5 ,"right zero", IOType.DIGITAL),
-            MowerIOInfo(6 ,"right zero pos", IOType.ANALOG),
+            MowerIOInfo(3 ,"left zero", IOType.DIGITAL),
+            MowerIOInfo(2 ,"left zero pos", IOType.ANALOG),
             MowerIOInfo(7 ,"seat drive", IOType.DIGITAL),
+            MowerIOInfo(4 ,"right throttle pos", IOType.ANALOG),
+            MowerIOInfo(6 ,"right zero", IOType.DIGITAL),
+            MowerIOInfo(5 ,"right zero pos", IOType.ANALOG),
             MowerIOInfo(8 ,"seat blade", IOType.DIGITAL),
-            MowerIOInfo(9 ,"low speed drive", IOType.DIGITAL),
             MowerIOInfo(10 ,"brake engaged", IOType.DIGITAL),
-            MowerIOInfo(11 ,"low speed cut", IOType.DIGITAL),
             MowerIOInfo(12 ,"blades enabled", IOType.DIGITAL),
+            MowerIOInfo(9 ,"low speed drive", IOType.DIGITAL),
+            MowerIOInfo(11 ,"low speed cut", IOType.DIGITAL),
         ]
         
         self.isAnyPortAvailable = False
@@ -271,6 +271,7 @@ class GUI:
 
         current_row = row + 1   
         self.inputs_label = tk.Label(self.topFrame, text="Mower DIO Inputs")
+        self.inputs_label.bind("<Button-1>", lambda e: self.on_dio_inputs_click())
         self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
         current_row += 1
         
@@ -288,7 +289,10 @@ class GUI:
             ioInfo = self.mower_dio_input_config[position]
             row = current_row + position // 4
             self.mower_input_io_labels.append(tk.Label(self.topFrame, text=ioInfo.name))
-            self.mower_input_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
+            if (ioInfo.io_type == IOType.DIGITAL):
+                self.mower_input_io.append(led.LEDIndicator(self.topFrame, size=20, booleanvar=ioInfo.value))
+            else:
+                self.mower_input_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
             
             self.mower_input_io_labels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
             column +=1
@@ -317,7 +321,10 @@ class GUI:
             ioInfo = self.mower_dio_output_config[position]
             row = current_row + position // 4
             self.mower_output_io_labels.append(tk.Label(self.topFrame, text=ioInfo.name))
-            self.mower_output_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
+            if (ioInfo.io_type == IOType.DIGITAL):
+                self.mower_output_io.append(led.LEDIndicator(self.topFrame, size=20, booleanvar=ioInfo.value))
+            else:
+                self.mower_output_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
             
             self.mower_output_io_labels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
             column +=1
@@ -346,7 +353,11 @@ class GUI:
         self.scan_button_command()
         # Blocking loop for GUI (Always put at the end)
         self.window.mainloop()
-
+        
+    def on_dio_inputs_click(self):
+        self.print_dio_inputs_raw = not self.print_dio_inputs_raw
+        print ("DIO Inputs Raw print toggled to ", self.print_dio_inputs_raw)
+        
     def start_button_command(self):
 
         if not self.isStarted:
@@ -445,6 +456,9 @@ class GUI:
                 self.radio_channel_values[i].set(-1)
                 
     def process_incoming_io_input_line(self, line):
+        if (self.print_dio_inputs_raw):
+            print("DIO Inputs Raw:", line.decode("ascii", errors='ignore'))
+        
         io_input_values = line[6:-7].strip().split(b'\t')
         for ioInfo in self.mower_dio_input_config:
             try:

@@ -1,7 +1,7 @@
 import tkinter as tk
 
 class LEDIndicator:
-    def __init__(self, parent, size=50):
+    def __init__(self, parent, size=50, booleanvar=None):
         """
         Initialize the LED indicator.
         
@@ -13,11 +13,25 @@ class LEDIndicator:
         
         # Create a Canvas to draw the LED
         self.canvas = tk.Canvas(parent, width=size, height=size, bg="white", highlightthickness=0)
-        self.canvas.pack(pady=10)
+        #self.canvas.pack(pady=10)
         
         # Draw the LED circle
-        self.led_circle = self.canvas.create_oval(2, 2, size-2, size-2, fill="gray", outline="black", width=2)
-    
+        self.led_circle = self.canvas.create_oval(2, 2, size-2, size-2, fill="red", outline="black", width=2)
+        self.booleanvar = booleanvar
+        
+        if self.booleanvar is not None:
+            self.booleanvar.trace_add('write', self.on_var_changed)
+            # Set initial state based on the variable
+            self.set_state(self.booleanvar.get())
+        
+    def grid(self, **kwargs):
+        self.canvas.grid(**kwargs)
+       
+            
+    def on_var_changed(self, *args):
+        if self.booleanvar is not None:
+            self.set_state(self.booleanvar.get())
+            
     def set_state(self, state):
         """
         Set the LED state.
@@ -25,7 +39,7 @@ class LEDIndicator:
         :param state: True to turn ON the LED, False to turn it OFF.
         """
         self.led_on = state
-        color = "green" if state else "gray"
+        color = "green" if state else "red"
         self.canvas.itemconfig(self.led_circle, fill=color)
 
 # Example usage
