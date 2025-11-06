@@ -20,8 +20,8 @@ namespace cotsbotics::radio_control
         // Read SBUS data and update control outputs accordingly
         if (!_sbus_receiver.no_data())
         {
-            uint16_t left_throttle = getChannelValueRaw(RC_Channels::LEFT_STICK_Y);
-            uint16_t right_throttle = getChannelValueRaw(RC_Channels::RIGHT_STICK_Y);
+            int32_t left_throttle =static_cast<int32_t>(getChannelValueRaw(RC_Channels::LEFT_STICK_Y));
+            int32_t right_throttle = static_cast<int32_t>(getChannelValueRaw(RC_Channels::RIGHT_STICK_Y));
             auto &state = _control_output_manager.getState();
             state.left_motor.throttle_position =  _throttle_converter.convert(left_throttle);
             state.right_motor.throttle_position = _throttle_converter.convert(right_throttle);

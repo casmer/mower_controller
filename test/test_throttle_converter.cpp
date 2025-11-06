@@ -3,19 +3,58 @@
 #include <gmock/gmock.h>
 
 #include <radio_control/throttle_converter.hpp>
+#include "radio_control/radio_configuration.hpp"
 
 using namespace cotsbotics::radio_control;
 TEST(throttle_converter, convert)
 {
 
-    ThrottleConverter uut_throttle_converter(100, 200, 10, 1000, 2000);
+    ThrottleConverter uut_throttle_converter(RadioConfiguration::ChannelRanges::MIN_INPUT,
+            RadioConfiguration::ChannelRanges::MAX_INPUT,
+            RadioConfiguration::ChannelRanges::DEADBAND,
+            RadioConfiguration::OutputRanges::MIN_OUTPUT,
+            RadioConfiguration::OutputRanges::MAX_OUTPUT);
 
+        {
 
-    EXPECT_EQ(uut_throttle_converter.convert(100), 1000);
-    EXPECT_EQ(uut_throttle_converter.convert(200), 2000);
-    EXPECT_EQ(uut_throttle_converter.convert(150), 1500);
-    EXPECT_EQ(uut_throttle_converter.convert(140), 1500);
-    EXPECT_EQ(uut_throttle_converter.convert(160), 1500);
+            int16_t test_value = RadioConfiguration::ChannelRanges::NEUTRAL_INPUT;
+            int16_t output_value = uut_throttle_converter.convert(test_value);
+            int16_t expected_value = RadioConfiguration::OutputRanges::NEUTRAL_OUTPUT;
+            EXPECT_EQ(output_value, expected_value);
+        }
+        
+        {
 
+            int16_t test_value = RadioConfiguration::ChannelRanges::MIN_INPUT;
+            int16_t output_value = uut_throttle_converter.convert(test_value);
+            int16_t expected_value = RadioConfiguration::OutputRanges::MIN_OUTPUT;
+            EXPECT_EQ(output_value, expected_value);
+        }
+
+        {
+
+            int16_t test_value = RadioConfiguration::ChannelRanges::MAX_INPUT;
+            int16_t output_value = uut_throttle_converter.convert(test_value);
+            int16_t expected_value = RadioConfiguration::OutputRanges::MAX_OUTPUT;
+            EXPECT_EQ(output_value, expected_value);
+        }
+
+        
+        {
+
+            int16_t test_value = RadioConfiguration::ChannelRanges::NEUTRAL_INPUT + (RadioConfiguration::ChannelRanges::DEADBAND);
+            int16_t output_value = uut_throttle_converter.convert(test_value);
+            int16_t expected_value = RadioConfiguration::OutputRanges::NEUTRAL_OUTPUT;
+            EXPECT_EQ(output_value, expected_value);
+        }
+
+        {
+
+            int16_t test_value = RadioConfiguration::ChannelRanges::NEUTRAL_INPUT - (RadioConfiguration::ChannelRanges::DEADBAND);
+            int16_t output_value = uut_throttle_converter.convert(test_value);
+            int16_t expected_value = RadioConfiguration::OutputRanges::NEUTRAL_OUTPUT;
+            EXPECT_EQ(output_value, expected_value);
+        }
+        
 
 }

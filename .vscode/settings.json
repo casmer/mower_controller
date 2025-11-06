@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "cotsbotics"
-    ]
+    ],
+    "files.associations": {
+        "new": "cpp"
+    }
 }

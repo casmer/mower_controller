@@ -28,18 +28,18 @@ namespace cotsbotics::radio_control
         class  ChannelRanges
         {
         public:
-            static int16_t constexpr MIN_INPUT = 310;
-            static int16_t constexpr MAX_INPUT = 1690;
-            static int16_t constexpr NEUTRAL_INPUT = (MIN_INPUT + MAX_INPUT) / 2;
-            static int16_t constexpr DEADBAND = 50;
+            static int32_t constexpr MIN_INPUT = 325;
+            static int32_t constexpr MAX_INPUT = 1690;
+            static int32_t constexpr NEUTRAL_INPUT = (MIN_INPUT + MAX_INPUT) / 2;
+            static int32_t constexpr DEADBAND = 50;
         };
 
         class  OutputRanges
         {
         public:
-            static int16_t constexpr MIN_OUTPUT = 0;
-            static int16_t constexpr MAX_OUTPUT = 4095;
-            static int16_t constexpr NEUTRAL_OUTPUT = (MIN_OUTPUT + MAX_OUTPUT) / 2;
+            static int32_t constexpr MIN_OUTPUT = 0;
+            static int32_t constexpr MAX_OUTPUT = 4095;
+            static int32_t constexpr NEUTRAL_OUTPUT = (MIN_OUTPUT + MAX_OUTPUT) / 2;
         };
 
     };
