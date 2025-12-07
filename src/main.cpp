@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
+
 #include <Arduino.h>
 #include <Adafruit_MCP4728.h>
 #include "sbus/sbus_receiver.hpp"
@@ -68,9 +71,7 @@ out_blades_enabled
 );
 
 cotsbotics::radio_control::RadioController radio_controller(
-    sbus_receiver,
-    control_output_manager,
-    manual_control_input_manager
+    sbus_receiver
 );
 static constexpr unsigned long PRINT_DELAY_MS = 100;
 millisDelay printDelay;

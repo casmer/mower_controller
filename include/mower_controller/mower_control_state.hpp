@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
+
 #pragma once
 
 #include "mower_controller/enum/mower_switch.hpp"

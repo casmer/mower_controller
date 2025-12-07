@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
+
 #include <gmock/gmock.h>
 #include <mock/MockAnalogInputPort.hpp>
 #include <mock/MockDigitalInputPort.hpp>

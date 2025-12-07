@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
+
 #pragma once
 
 // Demo for configuring the Vref of the MCP4728 4-Channel 12-bit I2C DAC

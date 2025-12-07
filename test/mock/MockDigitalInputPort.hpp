@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
+
 #pragma once
 
 #include "physical_io/IDigitalInputPort.hpp"

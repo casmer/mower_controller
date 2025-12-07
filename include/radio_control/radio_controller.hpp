@@ -1,7 +1,9 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
+
 #pragma once
 
-#include "mower_controller/mower_control_output.hpp"
-#include "mower_controller/mower_manual_control_input.hpp"
+#include "radio_control/radio_control_state.hpp"
 #include "radio_control/radio_configuration.hpp"
 #include "radio_control/throttle_converter.hpp"
 #include "sbus/sbus_receiver.hpp"
@@ -11,24 +13,26 @@ namespace cotsbotics::radio_control
     class RadioController
     {
     public:
-        RadioController(cotsbotics::SbusReceiver &sbus_receiver,
-                        MowerControlOutputManager &control_output_manager,
-                        MowerManualControlInputManager &manual_control_input_manager);
+        RadioController(cotsbotics::SbusReceiver &sbus_receiver);
 
         /// @brief Run periodic tasks for the RC control
         void tick();
 
+        RadioControlState const &getState() const noexcept
+        {
+            return _radio_control_state;
+        }
+
     private:
         cotsbotics::SbusReceiver &_sbus_receiver;
-        MowerControlOutputManager &_control_output_manager;
-        MowerManualControlInputManager &_manual_control_input_manager;
+        RadioControlState _radio_control_state{};
 
         void stopAllMotors();
 
         bool is_receiving_signal();
         uint16_t getChannelValueRaw(int8_t channel);
         bool getChannelValueBool(int8_t channel);
-        MowerSwitch getChannelSwitchState(int8_t channel);
+        RadioSwitch getChannelSwitchState(int8_t channel);
         ThrottleConverter _throttle_converter{
             RadioConfiguration::ChannelRanges::MIN_INPUT,
             RadioConfiguration::ChannelRanges::MAX_INPUT,

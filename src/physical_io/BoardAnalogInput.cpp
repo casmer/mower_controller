@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
 
 #include <Arduino.h> // or appropriate header for your platform
 #include "physical_io/BoardAnalogInput.hpp"

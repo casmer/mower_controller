@@ -1,6 +1,5 @@
-// MIT License
-//  Copyright (c) 2025 Cotsbotics
-//  Author: Casey Gregoire <caseyg@lalosoft.com>
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
 
 #ifndef SBUS_SBUS_RECEIVER_HPP
 #define SBUS_SBUS_RECEIVER_HPP

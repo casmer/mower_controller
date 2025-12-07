@@ -1,3 +1,5 @@
+// Copyright (c) 2025 Cotsbotics
+// Author: Casey Gregoire <caseyg@lalosoft.com>
 
 #include "mower_controller/mower_control_output.hpp"
 
