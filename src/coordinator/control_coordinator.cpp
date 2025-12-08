@@ -25,11 +25,14 @@ namespace cotsbotics
 
         void ControlCoordinator::tick()
         {
+
+            _remote_control_interlock_a.tick();
+            _remote_control_interlock_b.tick();
+            determineControlInterlock();
             _manual_control_input_manager.tick();
             _adc_manager.tick();
             _radio_controller.tick();
 
-            determineControlInterlock();
             
             if (_current_control_mode == ControlMode::Remote)
             {

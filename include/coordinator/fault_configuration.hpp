@@ -13,16 +13,16 @@ namespace cotsbotics::coordinator
     /// @brief Configuration thresholds for fault maturity and recovery
     struct FaultConfig
     {
-        constexpr FaultConfig(uint32_t maturity_ms, uint32_t recovery_ms)
-            : maturity_threshold_ms(maturity_ms),
-              recovery_threshold_ms(recovery_ms)
+        constexpr FaultConfig(uint8_t maturity_count, uint8_t recovery_count)
+            : maturity_count(maturity_count),
+              recovery_count(recovery_count)
         {
         }
-        /// @brief Time in milliseconds a fault must persist to be considered "mature"
-        uint32_t maturity_threshold_ms{0};
+        /// @brief number of ticks a fault must persist to be considered "mature"
+        uint8_t maturity_count{1};
 
-        /// @brief Time in milliseconds required for recovery/resolution of a fault
-        uint32_t recovery_threshold_ms{0};
+        /// @brief number of ticks required for recovery/resolution of a fault
+        uint8_t recovery_count{1};
     };
 
     /// @brief Provides fault configuration by fault ID
@@ -43,47 +43,10 @@ namespace cotsbotics::coordinator
         typedef etl::array<FaultConfig, static_cast<uint8_t> (FaultCode::MAX_FAULT_CODE)> FaultConfigArray;
         /// @brief Array of fault configurations indexed by FaultCode
         static constexpr FaultConfigArray FAULT_CONFIGS{{
-            // NO_FAULT (0)
-            FaultConfig(0, 0),
-            
-            // RADIO_LOSS_OF_SIGNAL (1) - Critical, should mature quickly and recover quickly
-            FaultConfig(100, 500),
-            
-            // SBUS_RECEIVER_ERROR (2) - High priority communication fault
-            FaultConfig(50, 1000),
-            
-            // MOTOR_DRIVER_FAULT_LEFT (3) - Critical drive fault
-            FaultConfig(200, 2000),
-            
-            // MOTOR_DRIVER_FAULT_RIGHT (4) - Critical drive fault
-            FaultConfig(200, 2000),
-            
-            // ADC_COMMUNICATION_ERROR (5) - Sensor fault
-            FaultConfig(500, 3000),
-            
-            // DAC_COMMUNICATION_ERROR (6) - Output fault
-            FaultConfig(500, 3000),
-            
-            // SEAT_SWITCH_FAULT (7) - Safety critical
-            FaultConfig(100, 1000),
-            
-            // BRAKE_SYSTEM_FAULT (8) - Safety critical
-            FaultConfig(150, 2000),
-            
-            // BLADE_MOTOR_FAULT (9) - Important but not critical
-            FaultConfig(300, 2000),
-            
-            // BATTERY_LOW (10) - Warning level, slower maturity
-            FaultConfig(5000, 10000),
-            
-            // WATCHDOG_TIMEOUT (11) - System level fault
-            FaultConfig(10, 5000),  
-            
-            // INVALID_STATE_TRANSITION (12) - Logic fault
-            FaultConfig(100, 2000),
-            
-            // SENSOR_OUT_OF_RANGE (13) - Sensor anomaly
-            FaultConfig(200, 1000),
+            FaultConfig(0, 0), // NO_FAULT (0)
+            FaultConfig(10, 100), // INTERLOC_MISMATCH_ERROR (1)
+            FaultConfig(5, 1), // SBUS_RECEIVER_ERROR (2)
+            FaultConfig(6, 20), // RADIO_LOSS_OF_SIGNAL (3) 
         }};
 
         /// @brief Convert FaultCode to array index

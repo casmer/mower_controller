@@ -20,21 +20,9 @@ namespace cotsbotics::coordinator
         reset_all_faults();
     }
 
-    void FaultManager::tick(uint32_t delta_ms)
+    void FaultManager::tick()
     {
-        // Update maturity counters for active faults
-        for (auto& fault : _faults)
-        {
-            if (fault.is_active)
-            {
-                fault.maturity_ms += delta_ms;
-            }
-            else if (fault.recovery_time_ms > 0 || fault.occurrence_count > 0)
-            {
-                // Track recovery time for resolved faults
-                fault.recovery_time_ms += delta_ms;
-            }
-        }
+        
     }
 
     void FaultManager::report_fault(FaultCode fault_code)
@@ -51,12 +39,25 @@ namespace cotsbotics::coordinator
         }
 
         FaultState& fault = _faults[index];
-
+        FaultConfig const& config = FaultConfiguration::get_fault_config(fault_code);
         // If this fault wasn't previously active, it's a new occurrence
         if (!fault.is_active)
         {
-            fault.occurrence_count++;
-            fault.recovery_time_ms = 0;  // Reset recovery timer on re-occurrence
+            fault.maturity_count++;
+            if (fault.maturity_count >= config.maturity_count)
+            {
+                fault.total_occurrence_count++;
+                fault.recovery_count = config.recovery_count;
+                fault.maturity_count = 0; // Reset maturity count after becoming active
+                fault.is_active = true;
+            }
+        }
+        else
+        {
+            if (fault.recovery_count > 0)
+                fault.recovery_count--;
+            else
+                fault.is_active = false;
         }
 
         fault.is_active = true;
@@ -77,7 +78,8 @@ namespace cotsbotics::coordinator
 
         FaultState& fault = _faults[index];
         fault.is_active = false;
-        fault.maturity_ms = 0;  // Reset maturity on recovery
+        fault.maturity_count = 0;  // Reset maturity on recovery
+        fault.recovery_count = 0;  // Reset recovery count
     }
 
     bool FaultManager::is_fault_active(FaultCode fault_code) const
@@ -96,7 +98,7 @@ namespace cotsbotics::coordinator
         return _faults[index].is_active;
     }
 
-    uint32_t FaultManager::get_fault_maturity_ms(FaultCode fault_code) const
+    uint8_t FaultManager::get_fault_maturity_count(FaultCode fault_code) const
     {
         if (fault_code == FaultCode::NO_FAULT)
         {
@@ -109,10 +111,10 @@ namespace cotsbotics::coordinator
             return 0;
         }
 
-        return _faults[index].maturity_ms;
+        return _faults[index].maturity_count;
     }
 
-    uint32_t FaultManager::get_fault_recovery_time_ms(FaultCode fault_code) const
+    uint8_t FaultManager::get_fault_recovery_count(FaultCode fault_code) const
     {
         if (fault_code == FaultCode::NO_FAULT)
         {
@@ -125,7 +127,7 @@ namespace cotsbotics::coordinator
             return 0;
         }
 
-        return _faults[index].recovery_time_ms;
+        return _faults[index].recovery_count;
     }
 
     uint16_t FaultManager::get_fault_occurrence_count(FaultCode fault_code) const
@@ -141,7 +143,7 @@ namespace cotsbotics::coordinator
             return 0;
         }
 
-        return _faults[index].occurrence_count;
+        return _faults[index].total_occurrence_count;
     }
 
     bool FaultManager::has_active_faults() const
@@ -167,41 +169,15 @@ namespace cotsbotics::coordinator
         for (auto& fault : _faults)
         {
             fault.is_active = false;
-            fault.maturity_ms = 0;
-            fault.recovery_time_ms = 0;
-            fault.occurrence_count = 0;
+            fault.maturity_count = 0;
+            fault.recovery_count = 0;
+            fault.total_occurrence_count = 0;
         }
     }
 
     uint8_t FaultManager::fault_code_to_index(FaultCode fault_code) const
     {
         return static_cast<uint8_t>(fault_code);
-    }
-
-    bool FaultManager::is_fault_mature(FaultCode fault_code) const
-    {
-        if (fault_code == FaultCode::NO_FAULT || !is_fault_active(fault_code))
-        {
-            return false;
-        }
-
-        const FaultConfig& config = FaultConfiguration::get_fault_config(fault_code);
-        uint32_t maturity = get_fault_maturity_ms(fault_code);
-
-        return maturity >= config.maturity_threshold_ms;
-    }
-
-    bool FaultManager::has_fault_recovered(FaultCode fault_code) const
-    {
-        if (fault_code == FaultCode::NO_FAULT || is_fault_active(fault_code))
-        {
-            return false;
-        }
-
-        const FaultConfig& config = FaultConfiguration::get_fault_config(fault_code);
-        uint32_t recovery = get_fault_recovery_time_ms(fault_code);
-
-        return recovery >= config.recovery_threshold_ms;
     }
 
 }  // namespace cotsbotics::coordinator

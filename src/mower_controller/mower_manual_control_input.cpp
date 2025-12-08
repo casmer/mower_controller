@@ -47,6 +47,15 @@ namespace cotsbotics
 
         void MowerManualControlInputManager::tick()
         {
+            m_left_motor_zero_switch.tick();
+            m_right_motor_zero_switch.tick();
+            m_seat_switch_drive_controls.tick();
+            m_seat_switch_blade_controls.tick();
+            m_low_speed_drive.tick();
+            m_brake_engaged.tick();
+            m_low_speed_cut.tick();
+            m_blades_enabled.tick();
+
             MowerControlState new_state;
             new_state.left_motor.throttle_position = m_left_motor_throttle.read();
             new_state.left_motor.zero_switch = fromBool(m_left_motor_zero_switch.read());
