@@ -11,9 +11,11 @@
 #include "physical_io/AdcAnalogInput.hpp"
 #include "physical_io/DacAnalogOutput.hpp"
 #include "mower_controller/mower_control_pin_assignments.hpp"
+#include "coordinator/control_coordinator.hpp"
 #include "radio_control/radio_controller.hpp"
 #include "physical_io/AdcManager.hpp"
 #include  "millisDelay.h"
+
 using namespace cotsbotics::mower_controller;
 cotsbotics::SbusReceiver sbus_receiver;
 Adafruit_MCP4728 mcp;
@@ -42,6 +44,9 @@ BoardDigitalOutput out_low_speed_drive(MowerControlPinAssignments::Outputs::LOW_
 BoardDigitalOutput out_brake_engaged(MowerControlPinAssignments::Outputs::BRAKE_ENGAGED);
 BoardDigitalOutput out_low_speed_cut(MowerControlPinAssignments::Outputs::LOW_SPEED_CUT);
 BoardDigitalOutput out_blades_enabled(MowerControlPinAssignments::Outputs::BLADES_ENABLED);
+
+BoardDigitalInput in_remote_control_interlock_a(MowerControlPinAssignments::Inputs::REMOTE_CONTROL_INTERLOCK_A);
+BoardDigitalInput in_remote_control_interlock_b(MowerControlPinAssignments::Inputs::REMOTE_CONTROL_INTERLOCK_B);
 
 cotsbotics::mower_controller:: MowerManualControlInputManager manual_control_input_manager(
 in_left_motor_zero_switch,
@@ -73,6 +78,16 @@ out_blades_enabled
 cotsbotics::radio_control::RadioController radio_controller(
     sbus_receiver
 );
+
+cotsbotics::coordinator::ControlCoordinator control_coordinator(
+    adc_manager,
+    radio_controller,
+    manual_control_input_manager,
+    control_output_manager,
+    in_remote_control_interlock_a,
+    in_remote_control_interlock_b
+);
+
 static constexpr unsigned long PRINT_DELAY_MS = 100;
 millisDelay printDelay;
 
@@ -194,11 +209,7 @@ void loop () {
 
 
   
-  sbus_receiver.tick();
-  manual_control_input_manager.tick();
-  control_output_manager.tick();
- adc_manager.tick();
- radio_controller.tick();
+control_coordinator.tick();
 
   if (printDelay.justFinished())
   {

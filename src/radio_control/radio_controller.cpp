@@ -16,6 +16,7 @@ namespace cotsbotics::radio_control
 
     void RadioController::tick()
     {
+        _sbus_receiver.tick();
         // Read SBUS data and update control outputs accordingly
         if (!_sbus_receiver.no_data())
         {
