@@ -18,6 +18,7 @@
 #include  "millisDelay.h"
 
 using namespace cotsbotics::mower_controller;
+using namespace cotsbotics::coordinator;
 cotsbotics::SbusReceiver sbus_receiver;
 Adafruit_MCP4728 mcp;
 Adafruit_ADS1115  ads;
@@ -55,7 +56,8 @@ cotsbotics::coordinator::ControlInterlock control_interlock(
     in_remote_control_interlock_a,
     in_remote_control_interlock_b,
     out_remote_control_interlock_a,
-    out_remote_control_interlock_b
+    out_remote_control_interlock_b,
+    10
 );
 
 cotsbotics::mower_controller:: MowerManualControlInputManager manual_control_input_manager(
@@ -169,6 +171,43 @@ void printSbusState(cotsbotics::SbusReceiver &data)
       Serial.println(":sb");
 }
 
+void printState(ControlMode mode, InterlockState interlock_state)
+{
+    Serial.print("mode:");
+    switch (mode)
+    {
+    case ControlMode::Manual:
+        Serial.print("Manual");
+        break;
+    case ControlMode::Remote:
+        Serial.print("Remote");
+        break;
+    case ControlMode::Robotic:
+        Serial.print("Robotic");
+        break;
+    default:
+        Serial.print("Unknown");
+        break;
+    }
+    Serial.print("\t");
+    switch (interlock_state)
+    {
+    case InterlockState::Disengaged :
+      Serial.print("Disengaged");
+      break;
+    case InterlockState::Engaged :
+      Serial.print("Engaged");  
+      break;
+    case InterlockState::Fault :
+      Serial.print("Fault");
+      break;
+    default:
+      Serial.print("Unknown");
+      break;
+    }
+    Serial.println(":mode");
+}
+
 void printState(MowerControlState const &state, bool is_input)
 {
     if (is_input)
@@ -222,10 +261,12 @@ control_coordinator.tick();
 
   if (printDelay.justFinished())
   {
+    printState(control_coordinator.currentControlMode(), control_interlock.interlockState());
     printState(manual_control_input_manager.getState(), true);
   
     printState(control_output_manager.getState(), false);
     printSbusState(sbus_receiver);
+    control_interlock.printBuffers();
     printDelay.start(PRINT_DELAY_MS);
   }
 
@@ -255,7 +296,6 @@ control_coordinator.tick();
   //   Serial.println(toggle);
 
   // }
-
-  delayMicroseconds(10);
+  delayMicroseconds(100);
 
 }

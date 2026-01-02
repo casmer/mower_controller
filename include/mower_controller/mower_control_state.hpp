@@ -43,6 +43,8 @@ namespace cotsbotics::mower_controller
         MowerSwitch low_speed_cut{MowerSwitch::OPEN};
         /// @brief Blade Run Enable (PTO)
         MowerSwitch blades_enabled{MowerSwitch::OPEN};
+        /// @brief Brake Engaged
+        MowerSwitch brake_engaged{MowerSwitch::OPEN};
         
         bool operator==(MowerControlState const &o) const noexcept
         {

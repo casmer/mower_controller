@@ -29,7 +29,6 @@ namespace cotsbotics::radio_control
         RadioSwitch low_speed_cut{RadioSwitch::RS_LOW};
         /// @brief Blade Run Enable (PTO)
         RadioSwitch blades_enabled{RadioSwitch::RS_LOW};
-        
         /// @brief Control Mode Selection
         RadioSwitch control_mode{RadioSwitch::RS_LOW};
         
@@ -43,7 +42,7 @@ namespace cotsbotics::radio_control
                 && low_speed_drive == o.low_speed_drive
                 && low_speed_cut == o.low_speed_cut
                 && blades_enabled == o.blades_enabled
-                && brake_engaged == o.brake_engaged;
+                && control_mode == o.control_mode;
         }
 
         bool operator!=(RadioControlState const &o) const noexcept

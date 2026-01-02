@@ -33,6 +33,8 @@ class MowerIOInfo:
         self.name = name
         self.io_type = io_type
         self.value = None
+        self.widget = None
+        
 class GUI:
     # GUI main class
     def __init__(self, title):
@@ -59,7 +61,7 @@ class GUI:
             ChannelInfo(1, "Right Stick X (1)"),
             ChannelInfo(2, "Right Stick Y (2)"),
             ChannelInfo(5, "Channel 5 (H)" ),
-            ChannelInfo(6, "Channel 6 (VR A)" ),
+            ChannelInfo(6, "Channel 6 (E)" ),
             ChannelInfo(7, "Channel 7 (VR C)" ),
             ChannelInfo(8, "Channel 8 (VR B)" ),
             ChannelInfo(9, "Channel 9 (B)" ),
@@ -246,14 +248,16 @@ class GUI:
 
         current_row += 1
         self.inputs_label = tk.Label(self.topFrame, text="RC Controller Inputs")
-        self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N,E,W,S))
         current_row += 1
         
         self.radio_channels = []
         self.radio_channel_labels = []
         self.radio_channel_values = []
+        self.radio_channel_widgets = []
         for position in range(0,16):
             self.radio_channel_values.append(tk.IntVar())
+            self.radio_channel_widgets.append(None)
         column = 0
         row = current_row
         for position in range(0,16):
@@ -261,10 +265,10 @@ class GUI:
             row = current_row + position // 4
             self.radio_channel_labels.append(tk.Label(self.topFrame, text=channelInfo.name))
             self.radio_channels.append(tk.Label(self.topFrame, textvariable=self.radio_channel_values[channelInfo.number - 1]))
-            
-            self.radio_channel_labels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            self.radio_channel_widgets[channelInfo.number - 1] = self.radio_channels[-1]
+            self.radio_channel_labels[-1].grid(column=column, row=row, sticky=(N,E,W,S))
             column +=1
-            self.radio_channels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            self.radio_channels[-1].grid(column=column, row=row, sticky=(N,E,W,S))
             column += 1
             if column >= 8:
                 column = 0
@@ -272,7 +276,7 @@ class GUI:
         current_row = row + 1   
         self.inputs_label = tk.Label(self.topFrame, text="Mower DIO Inputs")
         self.inputs_label.bind("<Button-1>", lambda e: self.on_dio_inputs_click())
-        self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N,E,W,S))
         current_row += 1
         
         self.mower_input_io = []
@@ -294,9 +298,9 @@ class GUI:
             else:
                 self.mower_input_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
             
-            self.mower_input_io_labels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            self.mower_input_io_labels[-1].grid(column=column, row=row, sticky=(N,E,W,S))
             column +=1
-            self.mower_input_io[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            self.mower_input_io[-1].grid(column=column, row=row, sticky=(N,E,W,S))
             column += 1
             if column >= 8:
                 column = 0
@@ -304,7 +308,7 @@ class GUI:
         current_row = row + 1  
         
         self.outputs_label = tk.Label(self.topFrame, text="Mower DIO Outputs")
-        self.outputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        self.outputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N,E,W,S))
         current_row += 1
         
         self.mower_output_io = []
@@ -326,19 +330,33 @@ class GUI:
             else:
                 self.mower_output_io.append(tk.Label(self.topFrame, textvariable=ioInfo.value))
             
-            self.mower_output_io_labels[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            self.mower_output_io_labels[-1].grid(column=column, row=row, sticky=(N,E,W,S))
             column +=1
-            self.mower_output_io[-1].grid(column=column, row=row, sticky=(N, E,W,S))
+            self.mower_output_io[-1].grid(column=column, row=row, sticky=(N,E,W,S))
             column += 1
             if column >= 8:
                 column = 0
 
         current_row = row + 1   
-      
         
+        self.mode_label = tk.Label(self.topFrame, text="Mode:")
+        self.mode_label.grid(column=0, row=current_row, columnspan=1, sticky=(N,E,W,S))
+        self.mode_text = tk.StringVar()
+        self.mode_text.set("Unknown")
+        self.mode_value_label = tk.Label(self.topFrame, textvariable=self.mode_text)
+        self.mode_value_label.grid(column=1, row=current_row, columnspan=2, sticky=(N,E,W,S))
+        
+        self.interlock_label = tk.Label(self.topFrame, text="Interlock:")
+        self.interlock_label.grid(column=3, row=current_row, columnspan=1, sticky=(N,E,W,S))
+        self.interlock_text = tk.StringVar()
+        self.interlock_text.set("Unknown")
+        self.interlock_value_label = tk.Label(self.topFrame, textvariable=self.interlock_text)
+        self.interlock_value_label.grid(column=4, row=current_row, columnspan=2, sticky=(N,E,W,S))
+        
+        current_row += 1
         
         self.textBox.configure( padx=padding, pady=padding)
-        self.textBox.grid(column=0, row=current_row, columnspan=8, sticky=(N, E,W,S))
+        self.textBox.grid(column=0, row=current_row, columnspan=8, sticky=(N,E,W,S))
 
         self.window.columnconfigure(0, weight=1)
         self.window.rowconfigure(0, weight=1)
@@ -353,6 +371,27 @@ class GUI:
         self.scan_button_command()
         # Blocking loop for GUI (Always put at the end)
         self.window.mainloop()
+        
+    def blink(self, widget, original_color="#e4e1e1", blink_color="yellow", duration=1000, times=1):
+        """
+        Makes a widget blink by alternating its background color.
+        :param widget: Tkinter widget to blink
+        :param original_color: Original color of the widget
+        :param blink_color: Color to blink with
+        :param duration: Time in ms for each blink phase
+        :param times: Number of blink cycles
+        """
+        # original_color = widget.cget("bg")
+        
+        def do_blink(count=0):
+            if count < times * 2:
+                # Alternate between blink color and original
+                widget.config(bg=blink_color if count % 2 == 0 else original_color)
+                widget.after(duration, do_blink, count + 1)
+            else:
+                widget.config(bg=original_color)  # Ensure final color is restored
+
+        do_blink()   
         
     def on_dio_inputs_click(self):
         self.print_dio_inputs_raw = not self.print_dio_inputs_raw
@@ -446,10 +485,14 @@ class GUI:
         # Set default value of selectedPort
         self.selectedPort.set(portNames[0])
 
+    def blink_on_change(self, widget, prev_value, new_value):
+        if prev_value != new_value:
+            self.blink(widget)
     def process_incoming_sbus_line(self, line):
         channel_values = line[6:].strip().split(b'\t')
         for i in range(min(16, len(channel_values))):
             try:
+                self.blink_on_change(self.radio_channel_widgets[i], self.radio_channel_values[i].get(), int(channel_values[i]))   
                 self.radio_channel_values[i].set(int(channel_values[i]))
             except ValueError:
                 print("sbus ValueError on channel", i, "with value", channel_values[i])
@@ -475,6 +518,15 @@ class GUI:
                 print("input IndexError on channel", ioInfo.number, "processing line:", io_input_values)
                 ioInfo.value.set(0)
                 continue
+            
+    def process_incoming_mode_line(self, line):
+        if (self.print_dio_inputs_raw):
+            print("DIO Inputs Raw:", line.decode("ascii", errors='ignore'))
+        
+        mode_input_values = line[5:-6].strip().split(b'\t')
+        self.mode_text.set(mode_input_values[0].decode("ascii", errors='ignore'))
+        self.interlock_text.set(mode_input_values[1].decode("ascii", errors='ignore'))
+        
     def process_incoming_io_output_line(self, line):
         io_output_values = line[7:-8].strip().split(b'\t')
         for ioInfo in self.mower_dio_output_config:
@@ -514,6 +566,11 @@ class GUI:
                     elif line.startswith(b'input:'):
                         if line.endswith(b':input\r'):
                             self.process_incoming_io_input_line(line)
+                        else:
+                            self.sbus_partial_line = line
+                    elif line.startswith(b'mode:'):
+                        if line.endswith(b':mode\r'):
+                            self.process_incoming_mode_line(line)
                         else:
                             self.sbus_partial_line = line
                     elif line.startswith(b'output:'):

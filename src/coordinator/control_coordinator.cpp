@@ -22,34 +22,39 @@ namespace cotsbotics
 
         mower_controller::MowerSwitch ControlCoordinator::fromRadioSwitch(cotsbotics::radio_control::RadioSwitch radio_switch)
         {
+            mower_controller::MowerSwitch mower_switch = mower_controller::MowerSwitch::OPEN;
             switch (radio_switch)
             {
             case radio_control::RadioSwitch::RS_HIGH:
-                return mower_controller::MowerSwitch::CLOSED;
+                mower_switch = mower_controller::MowerSwitch::CLOSED;
                 break;
             case radio_control::RadioSwitch::RS_LOW:
-                return mower_controller::MowerSwitch::OPEN;
+                mower_switch = mower_controller::MowerSwitch::OPEN;
                 break;
             case radio_control::RadioSwitch::RS_MIDDLE:
-                return mower_controller::MowerSwitch::OPEN;
+                mower_switch = mower_controller::MowerSwitch::OPEN;
                 break;
             }
+            return mower_switch;
         }
 
-        ControlMode fromRadioSwitch(cotsbotics::radio_control::RadioSwitch radio_switch)
+        ControlMode controlModeFromRadioSwitch(cotsbotics::radio_control::RadioSwitch radio_switch)
         {
+            ControlMode mode = ControlMode::Manual;
+
             switch (radio_switch)
             {
             case radio_control::RadioSwitch::RS_LOW:
-                return ControlMode::Manual;
+                mode = ControlMode::Manual;
                 break;
             case radio_control::RadioSwitch::RS_MIDDLE:
-                return ControlMode::Remote;
+                mode = ControlMode::Remote;
                 break;
             case radio_control::RadioSwitch::RS_HIGH:
-                return ControlMode::Robotic;
+                mode = ControlMode::Robotic;
                 break;
             }
+            return mode;
         }
 
         void ControlCoordinator::tick()
@@ -66,7 +71,7 @@ namespace cotsbotics
 
             if (_current_control_mode == ControlMode::Remote)
             {
-                RadioControlState &radio_state = _radio_controller.getState();
+                const radio_control::RadioControlState &radio_state = _radio_controller.getState();
                 // Map radio control state to mower control state
                 output_control_state.left_motor.throttle_position = radio_state.left_throttle_position;
                 output_control_state.right_motor.throttle_position = radio_state.right_throttle_position;
@@ -103,12 +108,15 @@ namespace cotsbotics
                 break;  
             case InterlockState::Engaged:
                 // let radio control decide
-                RadioControlState &radio_state = _radio_controller.getState();
-                _current_control_mode = fromRadioSwitch(radio_state.control_mode);
+                _current_control_mode = controlModeFromRadioSwitch(_radio_controller.getState().control_mode);
                 break;
             case InterlockState::Fault:
                 _current_control_mode = ControlMode::Manual;    
                 //TODO: Need to add fault reporting here somehow.
+                break;
+            case InterlockState::Unknown:
+                _current_control_mode = ControlMode::Manual;    
+                break;
             }
 
         };
