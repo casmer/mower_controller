@@ -29,9 +29,8 @@ namespace cotsbotics::radio_control
         RadioSwitch low_speed_cut{RadioSwitch::RS_LOW};
         /// @brief Blade Run Enable (PTO)
         RadioSwitch blades_enabled{RadioSwitch::RS_LOW};
-        /// @brief Brake Engaged
-        RadioSwitch brake_engaged{RadioSwitch::RS_LOW};
         
+        /// @brief Control Mode Selection
         RadioSwitch control_mode{RadioSwitch::RS_LOW};
         
         bool operator==(RadioControlState const &o) const noexcept

@@ -30,7 +30,21 @@ namespace cotsbotics::radio_control
             _radio_control_state.blades_enabled = getChannelSwitchState(RC_Channels::BLADE_ENABLE) ;
             _radio_control_state.low_speed_drive = getChannelSwitchState(RC_Channels::LOW_SPEED_DRIVE);
             _radio_control_state.low_speed_cut = getChannelSwitchState(RC_Channels::LOW_SPEED_CUT);
-
+            _radio_control_state.control_mode = getChannelSwitchState(RC_Channels::CONTROL_MODE);
+        }
+        else
+        {
+            int32_t left_throttle =static_cast<int32_t>(RadioConfiguration::ChannelRanges::NEUTRAL_INPUT);
+            int32_t right_throttle = static_cast<int32_t>(RadioConfiguration::ChannelRanges::NEUTRAL_INPUT);
+            _radio_control_state.left_throttle_position =  _throttle_converter.convert(left_throttle);
+            _radio_control_state.right_throttle_position = _throttle_converter.convert(right_throttle);
+            _radio_control_state.zero_switch =  RadioSwitch::RS_LOW;
+            _radio_control_state.seat_switch_blade = RadioSwitch::RS_LOW;
+            _radio_control_state.seat_switch_drive = RadioSwitch::RS_LOW;
+            _radio_control_state.blades_enabled = RadioSwitch::RS_LOW;
+            _radio_control_state.low_speed_drive = RadioSwitch::RS_LOW;
+            _radio_control_state.low_speed_cut = RadioSwitch::RS_LOW;
+            _radio_control_state.control_mode = RadioSwitch::RS_LOW;
         }
     }
 
@@ -44,13 +58,21 @@ namespace cotsbotics::radio_control
         return _sbus_receiver.get_channel(channel);
     }
 
-    bool RadioController::getChannelValueBool(int8_t channel)
-    {
-        return _sbus_receiver.get_channel(channel) > RadioConfiguration::ChannelRanges::NEUTRAL_INPUT;
-    }   
     RadioSwitch RadioController::getChannelSwitchState(int8_t channel)
     {
-        return fromBool(getChannelValueBool(channel));
+        uint16_t value = getChannelValueRaw(channel);
+        if (value <= RadioConfiguration::ChannelRanges::TRI_STATE_LOW_INPUT)
+        {
+            return RadioSwitch::RS_LOW;
+        }
+        else if (value >= RadioConfiguration::ChannelRanges::TRI_STATE_HIGH_INPUT)
+        {
+            return RadioSwitch::RS_HIGH;
+        }
+        else
+        {
+            return RadioSwitch::RS_MIDDLE;
+        }
     }
 
 }; // namespace cotsbotics::radio_control

@@ -1,7 +1,6 @@
 // Copyright (c) 2025 Cotsbotics
 // Author: Casey Gregoire <caseyg@lalosoft.com>
 
-
 #include "coordinator/control_coordinator.hpp"
 
 namespace cotsbotics
@@ -10,16 +9,48 @@ namespace cotsbotics
     {
 
         ControlCoordinator::ControlCoordinator(
-            AdcManager& adc_manager,
+            AdcManager &adc_manager,
             radio_control::RadioController &radio_controller,
             mower_controller::MowerManualControlInputManager &manual_control_input_manager,
             mower_controller::MowerControlOutputManager &control_output_manager,
-            ControlInterlock& remote_control_interlock) : _adc_manager(adc_manager),
-                                                           _radio_controller(radio_controller),
-                                                           _manual_control_input_manager(manual_control_input_manager),
-                                                           _control_output_manager(control_output_manager),
-                                                           _remote_control_interlock(remote_control_interlock) {
-                                                           };
+            ControlInterlock &remote_control_interlock) : _adc_manager(adc_manager),
+                                                          _radio_controller(radio_controller),
+                                                          _manual_control_input_manager(manual_control_input_manager),
+                                                          _control_output_manager(control_output_manager),
+                                                          _remote_control_interlock(remote_control_interlock) {
+                                                          };
+
+        mower_controller::MowerSwitch ControlCoordinator::fromRadioSwitch(cotsbotics::radio_control::RadioSwitch radio_switch)
+        {
+            switch (radio_switch)
+            {
+            case radio_control::RadioSwitch::RS_HIGH:
+                return mower_controller::MowerSwitch::CLOSED;
+                break;
+            case radio_control::RadioSwitch::RS_LOW:
+                return mower_controller::MowerSwitch::OPEN;
+                break;
+            case radio_control::RadioSwitch::RS_MIDDLE:
+                return mower_controller::MowerSwitch::OPEN;
+                break;
+            }
+        }
+
+        ControlMode fromRadioSwitch(cotsbotics::radio_control::RadioSwitch radio_switch)
+        {
+            switch (radio_switch)
+            {
+            case radio_control::RadioSwitch::RS_LOW:
+                return ControlMode::Manual;
+                break;
+            case radio_control::RadioSwitch::RS_MIDDLE:
+                return ControlMode::Remote;
+                break;
+            case radio_control::RadioSwitch::RS_HIGH:
+                return ControlMode::Robotic;
+                break;
+            }
+        }
 
         void ControlCoordinator::tick()
         {
@@ -30,20 +61,21 @@ namespace cotsbotics
             _adc_manager.tick();
             _radio_controller.tick();
 
-            
+            mower_controller::MowerControlState &output_control_state = _control_output_manager.getState();
+            mower_controller::MowerControlState const &manual_state = _manual_control_input_manager.getState();
+
             if (_current_control_mode == ControlMode::Remote)
             {
-                auto radio_state = _radio_controller.getState();
-                mower_controller::MowerControlState &control_state = _control_output_manager.getState();
+                RadioControlState &radio_state = _radio_controller.getState();
                 // Map radio control state to mower control state
-                control_state.left_motor.throttle_position = radio_state.left_throttle_position;   
-                control_state.right_motor.throttle_position = radio_state.right_throttle_position;
-                control_state.seat_switch_drive = static_cast<mower_controller::MowerSwitch>(radio_state.seat_switch_drive);
-                control_state.seat_switch_blade = static_cast<mower_controller::MowerSwitch>(radio_state.seat_switch_blade);
-                control_state.low_speed_drive = static_cast<mower_controller::MowerSwitch>(radio_state      .low_speed_drive);
-                control_state.low_speed_cut = static_cast<mower_controller::MowerSwitch>(radio_state.low_speed_cut);
-                control_state.blades_enabled = static_cast<mower_controller::MowerSwitch>(radio_state.blades_enabled);
-                control_state.brake_engaged = static_cast<mower_controller::MowerSwitch>(radio_state.brake_engaged);
+                output_control_state.left_motor.throttle_position = radio_state.left_throttle_position;
+                output_control_state.right_motor.throttle_position = radio_state.right_throttle_position;
+                output_control_state.seat_switch_drive = fromRadioSwitch(radio_state.seat_switch_drive);
+                output_control_state.seat_switch_blade = fromRadioSwitch(radio_state.seat_switch_blade);
+                output_control_state.low_speed_drive = fromRadioSwitch(radio_state.low_speed_drive);
+                output_control_state.low_speed_cut = fromRadioSwitch(radio_state.low_speed_cut);
+                output_control_state.blades_enabled = fromRadioSwitch(radio_state.blades_enabled);
+                output_control_state.brake_engaged = _manual_control_input_manager.getState().brake_engaged;
                 // Handle remote control mode
             }
             else
@@ -51,32 +83,34 @@ namespace cotsbotics
                 // Handle manual control mode
                 // Here you can add logic to decide how to coordinate between radio control and manual control
                 // For simplicity, let's assume manual control has priority over radio control
-                
-                mower_controller::MowerControlState const &manual_state = _manual_control_input_manager.getState();
-                _control_output_manager.getState() = manual_state;
+
+                output_control_state = manual_state;
             }
+
+            // Always update brake engaged from manual input
+            output_control_state.brake_engaged = manual_state.brake_engaged;
 
             _control_output_manager.tick();
         };
 
-        
-
         void ControlCoordinator::determineControlInterlock()
         {
-            
-            if (_remote_control_interlock.interlockState() != InterlockState::Engaged)
+
+            switch (_remote_control_interlock.interlockState())
             {
+            case InterlockState::Disengaged:
                 _current_control_mode = ControlMode::Manual;
+                break;  
+            case InterlockState::Engaged:
+                // let radio control decide
+                RadioControlState &radio_state = _radio_controller.getState();
+                _current_control_mode = fromRadioSwitch(radio_state.control_mode);
+                break;
+            case InterlockState::Fault:
+                _current_control_mode = ControlMode::Manual;    
+                //TODO: Need to add fault reporting here somehow.
             }
-            else
-            {
-                //do nothing, let radio control decide
-            } 
-            if (_remote_control_interlock.interlockState() == InterlockState::Fault)
-            {
-                // Fault condition, both interlocks the same
-                //TODO: do something _interlock_error = true;
-            }
+
         };
 
         void ControlCoordinator::manualControlKickOutProcessing()
@@ -94,4 +128,4 @@ namespace cotsbotics
             }
         };
     } // namespace coordinator
-} // namespace cotsbotics   
+} // namespace cotsbotics

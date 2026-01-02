@@ -38,6 +38,8 @@ namespace cotsbotics::coordinator
             return _current_control_mode != ControlMode::Manual;
         }
 
+        static inline mower_controller::MowerSwitch fromRadioSwitch(cotsbotics::radio_control::RadioSwitch radio_switch);
+        
     private:
         AdcManager& _adc_manager;
         radio_control::RadioController &_radio_controller;

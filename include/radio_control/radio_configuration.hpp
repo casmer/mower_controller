@@ -25,6 +25,9 @@ namespace cotsbotics::radio_control
 
             static int8_t constexpr SEAT_SWITCH = CH(11);
 
+            static int8_t constexpr CONTROL_MODE = CH(6);
+
+
             
         };
 
@@ -34,6 +37,8 @@ namespace cotsbotics::radio_control
             static int32_t constexpr MIN_INPUT = 325;
             static int32_t constexpr MAX_INPUT = 1690;
             static int32_t constexpr NEUTRAL_INPUT = (MIN_INPUT + MAX_INPUT) / 2;
+            static int32_t constexpr TRI_STATE_LOW_INPUT = (MIN_INPUT + NEUTRAL_INPUT) / 2;
+            static int32_t constexpr TRI_STATE_HIGH_INPUT = (NEUTRAL_INPUT + MAX_INPUT) / 2;
             static int32_t constexpr DEADBAND = 50;
         };
 

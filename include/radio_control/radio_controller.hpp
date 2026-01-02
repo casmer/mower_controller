@@ -31,8 +31,11 @@ namespace cotsbotics::radio_control
 
         bool is_receiving_signal();
         uint16_t getChannelValueRaw(int8_t channel);
-        bool getChannelValueBool(int8_t channel);
+        /// @brief get the switch state of a given channel
+        /// @param channel channel number
+        /// @return [enum RadioSwitch] Switch state of the channel.
         RadioSwitch getChannelSwitchState(int8_t channel);
+
         ThrottleConverter _throttle_converter{
             RadioConfiguration::ChannelRanges::MIN_INPUT,
             RadioConfiguration::ChannelRanges::MAX_INPUT,

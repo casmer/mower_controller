@@ -32,6 +32,7 @@ static constexpr digitalPin_t D38 = 38;
 static constexpr digitalPin_t D39 = 39;
 static constexpr digitalPin_t D40 = 40;
 static constexpr digitalPin_t D41 = 41;
+static constexpr digitalPin_t D42 = 42;
 
 static constexpr analogPin_t ADC0 = 0;
 static constexpr analogPin_t ADC1 = 1;
