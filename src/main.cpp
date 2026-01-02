@@ -12,6 +12,7 @@
 #include "physical_io/DacAnalogOutput.hpp"
 #include "mower_controller/mower_control_pin_assignments.hpp"
 #include "coordinator/control_coordinator.hpp"
+#include "coordinator/control_interlock.hpp"
 #include "radio_control/radio_controller.hpp"
 #include "physical_io/AdcManager.hpp"
 #include  "millisDelay.h"
@@ -47,6 +48,15 @@ BoardDigitalOutput out_blades_enabled(MowerControlPinAssignments::Outputs::BLADE
 
 BoardDigitalInput in_remote_control_interlock_a(MowerControlPinAssignments::Inputs::REMOTE_CONTROL_INTERLOCK_A);
 BoardDigitalInput in_remote_control_interlock_b(MowerControlPinAssignments::Inputs::REMOTE_CONTROL_INTERLOCK_B);
+BoardDigitalOutput out_remote_control_interlock_a(MowerControlPinAssignments::Outputs::REMOTE_CONTROL_INTERLOCK_A);
+BoardDigitalOutput out_remote_control_interlock_b(MowerControlPinAssignments::Outputs::REMOTE_CONTROL_INTERLOCK_B);
+
+cotsbotics::coordinator::ControlInterlock control_interlock(
+    in_remote_control_interlock_a,
+    in_remote_control_interlock_b,
+    out_remote_control_interlock_a,
+    out_remote_control_interlock_b
+);
 
 cotsbotics::mower_controller:: MowerManualControlInputManager manual_control_input_manager(
 in_left_motor_zero_switch,
@@ -84,8 +94,7 @@ cotsbotics::coordinator::ControlCoordinator control_coordinator(
     radio_controller,
     manual_control_input_manager,
     control_output_manager,
-    in_remote_control_interlock_a,
-    in_remote_control_interlock_b
+    control_interlock
 );
 
 static constexpr unsigned long PRINT_DELAY_MS = 100;

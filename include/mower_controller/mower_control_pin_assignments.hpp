@@ -25,7 +25,7 @@ namespace cotsbotics::mower_controller
             static digitalPin_t constexpr LOW_SPEED_CUT = D37;
             static digitalPin_t constexpr BLADES_ENABLED = D29;
             static digitalPin_t constexpr REMOTE_CONTROL_INTERLOCK_A = D38;
-            static digitalPin_t constexpr REMOTE_CONTROL_INTERLOCK_B = D39;
+            static digitalPin_t constexpr REMOTE_CONTROL_INTERLOCK_B = D40;
         };
         class Outputs
         {
@@ -40,6 +40,9 @@ namespace cotsbotics::mower_controller
             static digitalPin_t constexpr BRAKE_ENGAGED = D34;
             static digitalPin_t constexpr LOW_SPEED_CUT = D36;
             static digitalPin_t constexpr BLADES_ENABLED = D28;
+
+            static digitalPin_t constexpr REMOTE_CONTROL_INTERLOCK_A = D39;
+            static digitalPin_t constexpr REMOTE_CONTROL_INTERLOCK_B = D41;
         };
     };
 }; // cotsbotics

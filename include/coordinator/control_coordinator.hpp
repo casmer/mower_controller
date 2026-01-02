@@ -9,6 +9,8 @@
 #include "physical_io/IDigitalInputPort.hpp"
 #include "coordinator/control_mode.hpp"
 #include "physical_io/AdcManager.hpp"
+#include "coordinator/control_interlock.hpp"
+
 namespace cotsbotics::coordinator
 {
     class ControlCoordinator
@@ -19,8 +21,7 @@ namespace cotsbotics::coordinator
             radio_control::RadioController &radio_controller,
             mower_controller::MowerManualControlInputManager &manual_control_input_manager,
             mower_controller::MowerControlOutputManager &control_output_manager,
-            IDigitalInputPort& remote_control_interlock_a,
-            IDigitalInputPort& remote_control_interlock_b);
+            ControlInterlock& remote_control_interlock);
 
         /// @brief Run periodic tasks for the control coordinator
         void tick();
@@ -42,9 +43,8 @@ namespace cotsbotics::coordinator
         radio_control::RadioController &_radio_controller;
         mower_controller::MowerManualControlInputManager &_manual_control_input_manager;
         mower_controller::MowerControlOutputManager &_control_output_manager;
-        IDigitalInputPort& _remote_control_interlock_a;
-        IDigitalInputPort& _remote_control_interlock_b;
-        bool _remote_control_interlock_engaged;
+        ControlInterlock& _remote_control_interlock;
+
         ControlMode _current_control_mode{ControlMode::Manual};
     };
 

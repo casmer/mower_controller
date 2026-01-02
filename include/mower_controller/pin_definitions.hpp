@@ -30,16 +30,17 @@ static constexpr digitalPin_t D30 = 30;
 
 static constexpr digitalPin_t D38 = 38;
 static constexpr digitalPin_t D39 = 39;
-
+static constexpr digitalPin_t D40 = 40;
+static constexpr digitalPin_t D41 = 41;
 
 static constexpr analogPin_t ADC0 = 0;
 static constexpr analogPin_t ADC1 = 1;
 static constexpr analogPin_t ADC2 = 2;
 static constexpr analogPin_t ADC3 = 3;
 
- static constexpr analogPin_t MCP4728_CHANNEL_A = 0;
- static constexpr analogPin_t  MCP4728_CHANNEL_B = 1;
- static constexpr analogPin_t  MCP4728_CHANNEL_C = 2;
- static constexpr analogPin_t  MCP4728_CHANNEL_D = 3;
+static constexpr analogPin_t MCP4728_CHANNEL_A = 0;
+static constexpr analogPin_t  MCP4728_CHANNEL_B = 1;
+static constexpr analogPin_t  MCP4728_CHANNEL_C = 2;
+static constexpr analogPin_t  MCP4728_CHANNEL_D = 3;
 
 }; // cotsbotics::mower_controller

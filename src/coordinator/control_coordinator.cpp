@@ -14,20 +14,17 @@ namespace cotsbotics
             radio_control::RadioController &radio_controller,
             mower_controller::MowerManualControlInputManager &manual_control_input_manager,
             mower_controller::MowerControlOutputManager &control_output_manager,
-            IDigitalInputPort& remote_control_interlock_a,
-            IDigitalInputPort& remote_control_interlock_b) : _adc_manager(adc_manager),
+            ControlInterlock& remote_control_interlock) : _adc_manager(adc_manager),
                                                            _radio_controller(radio_controller),
                                                            _manual_control_input_manager(manual_control_input_manager),
                                                            _control_output_manager(control_output_manager),
-                                                           _remote_control_interlock_a(remote_control_interlock_a),
-                                                           _remote_control_interlock_b(remote_control_interlock_b) {
+                                                           _remote_control_interlock(remote_control_interlock) {
                                                            };
 
         void ControlCoordinator::tick()
         {
 
-            _remote_control_interlock_a.tick();
-            _remote_control_interlock_b.tick();
+            _remote_control_interlock.tick();
             determineControlInterlock();
             _manual_control_input_manager.tick();
             _adc_manager.tick();
@@ -66,12 +63,8 @@ namespace cotsbotics
 
         void ControlCoordinator::determineControlInterlock()
         {
-            // Logic to determine control mode based on interlock states
-            bool interlock_a = _remote_control_interlock_a.read();
-            bool interlock_b = _remote_control_interlock_b.read();
-
-            _remote_control_interlock_engaged = (interlock_a && !interlock_b);
-            if (!_remote_control_interlock_engaged)
+            
+            if (_remote_control_interlock.interlockState() != InterlockState::Engaged)
             {
                 _current_control_mode = ControlMode::Manual;
             }
@@ -79,7 +72,7 @@ namespace cotsbotics
             {
                 //do nothing, let radio control decide
             } 
-            if (interlock_a == interlock_b)
+            if (_remote_control_interlock.interlockState() == InterlockState::Fault)
             {
                 // Fault condition, both interlocks the same
                 //TODO: do something _interlock_error = true;
