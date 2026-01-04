@@ -39,7 +39,7 @@ class LEDIndicator:
         :param state: True to turn ON the LED, False to turn it OFF.
         """
         self.led_on = state
-        color = "green" if state else "red"
+        color = "red" if state else "green"
         self.canvas.itemconfig(self.led_circle, fill=color)
 
 # Example usage

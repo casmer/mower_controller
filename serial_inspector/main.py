@@ -272,8 +272,24 @@ class GUI:
             column += 1
             if column >= 8:
                 column = 0
-
-        current_row = row + 1   
+                
+                
+        current_row = row + 1
+        self.radio_failsafe_label = tk.Label(self.topFrame, text="Failsafe:")
+        self.radio_failsafe_label.grid(column=0, row=current_row, columnspan=1, sticky=(N,E,W,S))
+        self.radio_failsafe_text = tk.StringVar()
+        self.radio_failsafe_text.set("Unknown")
+        self.radio_failsafe_value_label = tk.Label(self.topFrame, textvariable=self.radio_failsafe_text)
+        self.radio_failsafe_value_label.grid(column=1, row=current_row, columnspan=2, sticky=(N,E,W,S))
+        
+        self.lost_frame_label = tk.Label(self.topFrame, text="Lost Frames:")    
+        self.lost_frame_label.grid(column=3, row=current_row, columnspan=1, sticky=(N,E,W,S))
+        self.lost_frame_text = tk.StringVar()
+        self.lost_frame_text.set("Unknown")
+        self.lost_frame_value_label = tk.Label(self.topFrame, textvariable=self.lost_frame_text)
+        self.lost_frame_value_label.grid(column=4, row=current_row, columnspan=2, sticky=(N,E,W,S))
+        
+        current_row += 1
         self.inputs_label = tk.Label(self.topFrame, text="Mower DIO Inputs")
         self.inputs_label.bind("<Button-1>", lambda e: self.on_dio_inputs_click())
         self.inputs_label.grid(column=0, row=current_row, columnspan=8, sticky=(N,E,W,S))
@@ -485,11 +501,12 @@ class GUI:
         # Set default value of selectedPort
         self.selectedPort.set(portNames[0])
 
-    def blink_on_change(self, widget, prev_value, new_value):
+    def blink_on_change(self, widget, prev_value, new_value, duration=500, times=1):
         if prev_value != new_value:
-            self.blink(widget)
+            self.blink(widget,duration=duration, times=times)
+            
     def process_incoming_sbus_line(self, line):
-        channel_values = line[6:].strip().split(b'\t')
+        channel_values = line[6:-4].strip().split(b'\t')
         for i in range(min(16, len(channel_values))):
             try:
                 self.blink_on_change(self.radio_channel_widgets[i], self.radio_channel_values[i].get(), int(channel_values[i]))   
@@ -497,6 +514,20 @@ class GUI:
             except ValueError:
                 print("sbus ValueError on channel", i, "with value", channel_values[i])
                 self.radio_channel_values[i].set(-1)
+        try:
+            newvalue =channel_values[17].decode("ascii", errors='ignore')
+            if (newvalue != self.radio_failsafe_text.get() and newvalue == "FS"):
+                self.blink(self.radio_failsafe_value_label, duration=200, times=8)   
+            self.radio_failsafe_text.set(newvalue)
+        except IndexError:
+            self.radio_failsafe_text.set("Error")
+        
+        try:
+            newvalue =channel_values[16].decode("ascii", errors='ignore')
+            self.blink_on_change(self.lost_frame_value_label, self.lost_frame_text.get(), newvalue, 200, 1)   
+            self.lost_frame_text.set(newvalue)
+        except IndexError:
+            self.lost_frame_text.set("Error")
                 
     def process_incoming_io_input_line(self, line):
         if (self.print_dio_inputs_raw):

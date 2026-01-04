@@ -18,7 +18,7 @@ namespace cotsbotics::radio_control
     {
         _sbus_receiver.tick();
         // Read SBUS data and update control outputs accordingly
-        if (!_sbus_receiver.no_data())
+        if (is_receiving_signal())
         {
             int32_t left_throttle =static_cast<int32_t>(getChannelValueRaw(RC_Channels::LEFT_STICK_Y));
             int32_t right_throttle = static_cast<int32_t>(getChannelValueRaw(RC_Channels::RIGHT_STICK_Y));
@@ -31,6 +31,7 @@ namespace cotsbotics::radio_control
             _radio_control_state.low_speed_drive = getChannelSwitchState(RC_Channels::LOW_SPEED_DRIVE);
             _radio_control_state.low_speed_cut = getChannelSwitchState(RC_Channels::LOW_SPEED_CUT);
             _radio_control_state.control_mode = getChannelSwitchState(RC_Channels::CONTROL_MODE);
+            _radio_control_state.failsafe = false;
         }
         else
         {
@@ -45,12 +46,13 @@ namespace cotsbotics::radio_control
             _radio_control_state.low_speed_drive = RadioSwitch::RS_LOW;
             _radio_control_state.low_speed_cut = RadioSwitch::RS_LOW;
             _radio_control_state.control_mode = RadioSwitch::RS_LOW;
+            _radio_control_state.failsafe = true;
         }
     }
 
     bool RadioController::is_receiving_signal()
     {
-        return (!_sbus_receiver.no_data()) || _sbus_receiver.get_failsafe();
+        return (!_sbus_receiver.no_data()) && (!_sbus_receiver.get_failsafe());
     }
 
     uint16_t RadioController::getChannelValueRaw(int8_t channel)

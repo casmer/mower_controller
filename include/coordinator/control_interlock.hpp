@@ -17,9 +17,7 @@ namespace cotsbotics
             ControlInterlock(
                 IDigitalInputPort &interlock_a,
                 IDigitalInputPort &interlock_b,
-                IDigitalOutputPort &interlock_a2,
-                IDigitalOutputPort &interlock_b2,
-                int tick_delay_ticks = 10);
+            int tick_delay_count = 30);
 
             /// @brief Setup the interlock ports
             void setup();
@@ -41,27 +39,21 @@ namespace cotsbotics
 
             void printBuffers();
             /// @brief Size of the interlock signal buffer
-            constexpr static int kInterlockBufferSize{10};
+            constexpr static uint8_t kInterlockBufferSize{10};
         private:
             /// @brief Digital input port for interlock A
             IDigitalInputPort &_interlock_a;
             /// @brief Digital input port for interlock B
             IDigitalInputPort &_interlock_b;
-            /// @brief Digital output port for interlock A
-            IDigitalOutputPort &_interlock_out_a;
-            /// @brief Digital output port for interlock B
-            IDigitalOutputPort &_interlock_out_b;
 
-            bool _interlock_a_output{false};
             bool _interlock_a_buffer[kInterlockBufferSize] = {0};
             bool _interlock_b_buffer[kInterlockBufferSize] = {0};
-            int _interlock_buffer_index {0};
+            uint8_t _interlock_buffer_index {0};
             bool _interlock_signal_ready {false};
 
             InterlockState _interlock_state{InterlockState::Unknown};
-            const int _tick_delay_ticks;
-            int _tick_count{0};
-
+            const int _tick_delay_count;
+            int _tick_delay_counter{0};
         };
     };
 };

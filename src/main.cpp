@@ -49,16 +49,10 @@ BoardDigitalOutput out_blades_enabled(MowerControlPinAssignments::Outputs::BLADE
 
 BoardDigitalInput in_remote_control_interlock_a(MowerControlPinAssignments::Inputs::REMOTE_CONTROL_INTERLOCK_A);
 BoardDigitalInput in_remote_control_interlock_b(MowerControlPinAssignments::Inputs::REMOTE_CONTROL_INTERLOCK_B);
-BoardDigitalOutput out_remote_control_interlock_a(MowerControlPinAssignments::Outputs::REMOTE_CONTROL_INTERLOCK_A);
-BoardDigitalOutput out_remote_control_interlock_b(MowerControlPinAssignments::Outputs::REMOTE_CONTROL_INTERLOCK_B);
 
 cotsbotics::coordinator::ControlInterlock control_interlock(
     in_remote_control_interlock_a,
-    in_remote_control_interlock_b,
-    out_remote_control_interlock_a,
-    out_remote_control_interlock_b,
-    10
-);
+    in_remote_control_interlock_b);
 
 cotsbotics::mower_controller:: MowerManualControlInputManager manual_control_input_manager(
 in_left_motor_zero_switch,
@@ -151,9 +145,9 @@ void setup() {
   control_output_manager.setup();
   manual_control_input_manager.setup();
   adc_manager.setup();
+  control_interlock.setup();
   printDelay.start(PRINT_DELAY_MS);
   changeValueDelayTimer.start(600);
-
 }
 
 void printSbusState(cotsbotics::SbusReceiver &data)
@@ -266,7 +260,7 @@ control_coordinator.tick();
   
     printState(control_output_manager.getState(), false);
     printSbusState(sbus_receiver);
-    control_interlock.printBuffers();
+    // control_interlock.printBuffers();
     printDelay.start(PRINT_DELAY_MS);
   }
 
@@ -296,6 +290,9 @@ control_coordinator.tick();
   //   Serial.println(toggle);
 
   // }
-  delayMicroseconds(100);
+  
+
+  // NOTE: This rate is important for the RC controller to work.
+  delayMicroseconds(20);
 
 }

@@ -26,13 +26,13 @@ namespace cotsbotics
             switch (radio_switch)
             {
             case radio_control::RadioSwitch::RS_HIGH:
-                mower_switch = mower_controller::MowerSwitch::CLOSED;
-                break;
-            case radio_control::RadioSwitch::RS_LOW:
                 mower_switch = mower_controller::MowerSwitch::OPEN;
                 break;
             case radio_control::RadioSwitch::RS_MIDDLE:
                 mower_switch = mower_controller::MowerSwitch::OPEN;
+                break;
+            case radio_control::RadioSwitch::RS_LOW:
+                mower_switch = mower_controller::MowerSwitch::CLOSED;
                 break;
             }
             return mower_switch;
@@ -45,13 +45,13 @@ namespace cotsbotics
             switch (radio_switch)
             {
             case radio_control::RadioSwitch::RS_LOW:
-                mode = ControlMode::Manual;
+                mode = ControlMode::Robotic;
                 break;
             case radio_control::RadioSwitch::RS_MIDDLE:
                 mode = ControlMode::Remote;
                 break;
             case radio_control::RadioSwitch::RS_HIGH:
-                mode = ControlMode::Robotic;
+                mode = ControlMode::Manual;
                 break;
             }
             return mode;
@@ -75,6 +75,8 @@ namespace cotsbotics
                 // Map radio control state to mower control state
                 output_control_state.left_motor.throttle_position = radio_state.left_throttle_position;
                 output_control_state.right_motor.throttle_position = radio_state.right_throttle_position;
+                output_control_state.left_motor.zero_switch = fromRadioSwitch(radio_state.zero_switch);
+                output_control_state.right_motor.zero_switch = fromRadioSwitch(radio_state.zero_switch);
                 output_control_state.seat_switch_drive = fromRadioSwitch(radio_state.seat_switch_drive);
                 output_control_state.seat_switch_blade = fromRadioSwitch(radio_state.seat_switch_blade);
                 output_control_state.low_speed_drive = fromRadioSwitch(radio_state.low_speed_drive);
@@ -108,7 +110,15 @@ namespace cotsbotics
                 break;  
             case InterlockState::Engaged:
                 // let radio control decide
-                _current_control_mode = controlModeFromRadioSwitch(_radio_controller.getState().control_mode);
+                if (_radio_controller.getState().failsafe)
+                {
+                    _current_control_mode = ControlMode::Manual;
+                }
+                else
+                {
+                    _current_control_mode = controlModeFromRadioSwitch(_radio_controller.getState().control_mode);
+
+                }
                 break;
             case InterlockState::Fault:
                 _current_control_mode = ControlMode::Manual;    

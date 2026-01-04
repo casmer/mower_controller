@@ -1,9 +1,9 @@
 // Copyright (c) 2025 Cotsbotics
 // Author: Casey Gregoire <caseyg@lalosoft.com>
 
-#include "Arduino.h"
 #include "coordinator/control_interlock.hpp"
 #if defined(ARDUINO)
+#include "Arduino.h"
 #define DEBUG_MSG(msg)
 #define DEBUG_MSG_A(msg) Serial.println(msg);
 #else
@@ -20,26 +20,17 @@ namespace cotsbotics
         ControlInterlock::ControlInterlock(
             IDigitalInputPort& interlock_a,
             IDigitalInputPort& interlock_b,
-            IDigitalOutputPort& interlock_a2,
-            IDigitalOutputPort& interlock_b2,
-            int tick_delay_ticks) : 
-                                                           _interlock_a(interlock_a),
-                                                           _interlock_b(interlock_b),
-                                                           _interlock_out_a(interlock_a2),
-                                                           _interlock_out_b(interlock_b2),
-                                                           _tick_delay_ticks(tick_delay_ticks) {
-                                                           };
+            int tick_delay_count) : 
+                    _interlock_a(interlock_a),
+                    _interlock_b(interlock_b),
+                    _tick_delay_count(tick_delay_count)
+        {};
 
         void ControlInterlock::setup()
         {
             _interlock_a.setup();
             _interlock_b.setup();
-            _interlock_out_a.setup();
-            _interlock_out_b.setup();
             // Initialize output signals
-            _interlock_a_output = false;
-            _interlock_out_a.write(_interlock_a_output);
-            _interlock_out_b.write(!_interlock_a_output);
         };
 
         void ControlInterlock::tick()
@@ -47,46 +38,42 @@ namespace cotsbotics
 
             _interlock_a.tick();
             _interlock_b.tick();
-            _tick_count++;
-            if (_tick_count >= _tick_delay_ticks) 
-            {
-                _tick_count = 0;
+            _tick_delay_counter++;
+            // if (_tick_delay_counter >= _tick_delay_count)
+            // {
+                _tick_delay_counter = 0;
                 determineControlInterlock();
-            }
+            // }
         };
 
         #define btos(b) ((b) ? "1" : "0")
         void ControlInterlock::printBuffers()
         {
-            Serial.print("Interlock A: ");
-            Serial.print(btos(_interlock_a_output));
-            Serial.print(" Buffer: ");
+            #if defined(ARDUINO)
+                Serial.print("Interlock A Buffer: ");
             for (int i = 0; i < kInterlockBufferSize; i++)
             {
                 Serial.print(btos(_interlock_a_buffer[i]));
                 Serial.print(",");
             }
             Serial.println();
-            Serial.print("Interlock B: ");
-            Serial.print(btos(!_interlock_a_output));
-            Serial.print(" Buffer: ");
+            Serial.print("Interlock B Buffer: ");
             for (int i = 0; i < kInterlockBufferSize; i++)
             {
                 Serial.print(btos(_interlock_b_buffer[i]));
                 Serial.print(",");
             }
             Serial.println();
+            #endif
         }
         void ControlInterlock::determineControlInterlock()
         {
             // Logic to determine control mode based on interlock states
-            _interlock_a_buffer[_interlock_buffer_index] = _interlock_a.read();
-            _interlock_b_buffer[_interlock_buffer_index] = _interlock_b.read();
+            _interlock_a_buffer[_interlock_buffer_index] = _interlock_a.read_raw();
+            _interlock_b_buffer[_interlock_buffer_index] = _interlock_b.read_raw();
             DEBUG_MSG("Interlock Index: " << _interlock_buffer_index 
                       << " A: " << _interlock_a_buffer[_interlock_buffer_index]
-                      << " B: " << _interlock_b_buffer[_interlock_buffer_index]
-                      << " Expected A: " << _interlock_a_output
-                      << " Expected B: " << !_interlock_a_output);
+                      << " B: " << _interlock_b_buffer[_interlock_buffer_index]);
             if (_interlock_buffer_index == kInterlockBufferSize - 1)
             {
                 DEBUG_MSG("Interlock signal buffer is now ready.");
@@ -106,8 +93,7 @@ namespace cotsbotics
 
                 int interlock_a_sum = 0;
                 int interlock_b_sum = 0;
-                bool interlock_a_alternating = true;
-                bool interlock_b_alternating = true;
+               
                 for (int i = 0; i < kInterlockBufferSize; i++)
                 {
                     int next_i = (i + 1) % kInterlockBufferSize;
@@ -119,63 +105,32 @@ namespace cotsbotics
 
                     interlock_a_sum += _interlock_a_buffer[i] ? 1 : 0;
                     interlock_b_sum += _interlock_b_buffer[i] ? 1 : 0;
-                    if (_interlock_a_buffer[i] == _interlock_a_buffer[next_i])
-                    {
-                        interlock_a_alternating = false;
-                    }
-                    if (_interlock_b_buffer[i] == _interlock_b_buffer[next_i])
-                    {
-                        interlock_b_alternating = false;
-                    }
+                    
+                    
+                }
 
-                }
-                if (interlock_a_alternating && (!interlock_b_alternating))
+                if ((interlock_a_sum == kInterlockBufferSize) && (interlock_b_sum == 0))
                 {
-                    if (_interlock_a_buffer[_interlock_buffer_index] != _interlock_a_output)
-                    {
-                        DEBUG_MSG("Interlock A Alternating but last value does not match expected output. Fault.");
-                        _interlock_state = InterlockState::Fault;
-                    }
-                    else if (interlock_b_sum == kInterlockBufferSize)
-                    {
-                        _interlock_state = InterlockState::Disengaged;
-                        DEBUG_MSG("Interlock A Alternating, Interlock B High: Disengaged");
-                    }
-                    else 
-                    {
-                        DEBUG_MSG("Interlock A Alternating, Interlock B Not High: Fault");
-                        _interlock_state = InterlockState::Fault;
-                    }
+                    DEBUG_MSG("Interlock A High, Interlock B Low. Engaged.");
+                    _interlock_state = InterlockState::Engaged;
                 }
-                else if ((!interlock_a_alternating) && interlock_b_alternating)
+                else if ((interlock_a_sum == 0) && (interlock_b_sum == kInterlockBufferSize))
                 {
-                    if (_interlock_b_buffer[_interlock_buffer_index] == _interlock_a_output)
-                    {
-                        DEBUG_MSG("Interlock B Alternating but last value does not match expected output. Fault.");
-                        _interlock_state = InterlockState::Fault;
-                    }
-                    else if (interlock_a_sum == kInterlockBufferSize)
-                    {
-                        _interlock_state = InterlockState::Engaged;
-                        DEBUG_MSG("Interlock B Alternating, Interlock A High: Engaged");
-                    }
-                    else 
-                    {
-                        DEBUG_MSG("Interlock B Alternating, Interlock A Not High: Fault");
-                        _interlock_state = InterlockState::Fault;
-                    }
+                    DEBUG_MSG("Interlock A Low, Interlock B High. Disengaged.");
+                    _interlock_state = InterlockState::Disengaged;
                 }
                 else
                 {
-                    DEBUG_MSG("Interlock Signal Fault, neither A nor B are alternating.");
+                    DEBUG_MSG("Interlock Fault Condition Detected." << " A Sum: " << interlock_a_sum << " B Sum: " << interlock_b_sum);
                     _interlock_state = InterlockState::Fault;
                 }
             }
              // Toggle the output signals to indicate interlock status
-            _interlock_buffer_index = (_interlock_buffer_index + 1) % kInterlockBufferSize;
-            _interlock_a_output = !_interlock_a_output;
-            _interlock_out_a.write(_interlock_a_output);
-            _interlock_out_b.write(!_interlock_a_output);
+            _interlock_buffer_index = (_interlock_buffer_index + 1);
+            if (_interlock_buffer_index >= kInterlockBufferSize)
+            {
+                _interlock_buffer_index = 0;
+            }
         
         };
 
